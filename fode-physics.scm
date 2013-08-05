@@ -2,8 +2,10 @@
 
 ;(load "bullet-beer.scm")
 
-(use-modules ((minimal-cognition fode)
-             #:renamer (symbol-prefix-proc 'fode:)))
+(use-modules (oop goops)
+             (physics)
+             ((minimal-cognition fode)
+              #:renamer (symbol-prefix-proc 'fode:)))
 
 (define-class-public <fode-physics> (<physics>)
   (params #:init-value #f)

@@ -2,8 +2,8 @@
 ;;
 ;; replication of the selecive attention experiment
 (use-modules 
+ (beer-parameters)
  (minimal-cognition ctrnn)
- ;(minimal-cognition fode)
  ((minimal-cognition fode)
              #:renamer (symbol-prefix-proc 'fode:))
  (minimal-cognition vision)
@@ -12,6 +12,7 @@
  (nsga-ii) 
  (fitness)
  (infix)
+ (srfi srfi-1) ;; append-map
  (srfi srfi-19)
  (srfi srfi-8) ;; receive
  (srfi srfi-11) ;; let-values
@@ -435,7 +436,7 @@
      (set! vision-line-actors-index 0))))
 
 (define current-genome (make-genome-for-n-ctrnn node-count))
-(define gene-count (generalized-vector-length current-genome))
+(define gene-count (array-length current-genome))
 
 (add-hook! physics-tick-hook #.\ (fode-physics-tick))
 (define tick-count 0)
@@ -852,7 +853,7 @@
 (define (individual-succeeded? fitness)
   "Did the individual come in contact with the object."
   (format #t "checking fitness ~a~%" fitness)
-  (let ((distance (generalized-vector-ref fitness 0)))
+  (let ((distance (array-ref fitness 0)))
     (<= distance successful-distance)))
 
 (define (any-individual-succeeded? generation results)

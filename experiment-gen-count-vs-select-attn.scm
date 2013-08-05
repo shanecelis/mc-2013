@@ -5,6 +5,7 @@
   #:use-module (emacsy util)
   #:use-module (srfi srfi-26) ; cut cute
   #:use-module (srfi srfi-1)  ; take
+  #:use-module (guile-user)
   #:export (<gen-count-vs-select-attn-trial>
             <gen-count-vs-select-attn>
 

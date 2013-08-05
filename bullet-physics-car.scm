@@ -7,75 +7,79 @@
   )
 
 (define-method (initialize (bpc <bullet-physics-car>) initargs)
-  (define (process-wheel wheel)
-    (rotate-body! wheel 0. 0. (/ pi 2.))
-    (sim-add-body (bp:sim bpc) 
-                  wheel
-                  wheel-group           ; is-a
-                  (logior 
-                   floor-group)        ; collides with
-                  ))
-  (define (process-joint joint)
-    (sim-add-constraint (bp:sim bpc)
-                        joint))
-  (define (make-wheel x y)
-    
-    ;; The cylinder will be aligned on the Y-axis, but we
-    ;; want it to be on the Z-axis.
-    (make-cylinder 
-     ;; position
-     (vector x ;x 
-             0 ;y
-             0)
-     ;; dimensions
-     (vector (/ agent-diameter 5.)
-             (* 0.2 agent-diameter)
-             (/ agent-diameter 5.))
-     ;; mass
-     1.
-     ;; name
-     (format #f "wheel (~a,~a)" x y)))
-  (next-method)
-  
-  ;; Let's make the wheels.
-  (set! (bpc:wheels bpc) 
-        (let ((x (/ agent-diameter 2.))
-              (y (/ agent-diameter 2.)))
-        
-         (list (make-wheel (- x) y)
-               (make-wheel x y)
-               (make-wheel (- x) (- y))
-               (make-wheel x (- y)))))
-  (for-each process-wheel (bpc:wheels bpc))
-  ;; Let's make the joints.
-  
-  (let ((agent (car (bp:objects bpc)))
-        (wheel1 (car (bpc:wheels bpc)))
-        (wheel2 (cadr (bpc:wheels bpc)))
-        (wheel3 (caddr (bpc:wheels bpc)))
-        (wheel4 (cadddr (bpc:wheels bpc)))
-        (x (/ agent-diameter 2.))
-        (z (/ agent-diameter 2.)))
-    
-    (set! (bpc:axes bpc) 
-          (map (lambda (position wheel)
-                 (set-position! wheel position)
-                 (make-hinge agent                            wheel
-                             position                         (vector 0 0 0)
-                             #(0 0 1)                         #(0 1 0)
-                             "axis"))
-               (list (vector (- x) 0 z)
-                     (vector x 0 z)
-                     (vector (- x) 0 (- z))
-                     (vector x 0 (- z)))
-               (bpc:wheels bpc)))
-    
-    (for-each process-joint (bpc:axes bpc))
-    
-    ;; Let's put a constraint on the car to only move along the x-axis.
-    (set! (bpc:slider bpc) (make-slider agent #(1 0 0)))
-    ;(process-joint (bpc:slider bpc))
-    ))
+  "Initialize the bullet car."
+  ;; XXX bizzarre and probably a bug. private function definitions not allowed
+  ;; at the beginning of a define-method
+  (let ()
+   (define (process-wheel wheel)
+     (rotate-body! wheel 0. 0. (/ pi 2.))
+     (sim-add-body (bp:sim bpc) 
+                   wheel
+                   wheel-group          ; is-a
+                   (logior 
+                    floor-group)        ; collides with
+                   ))
+   (define (process-joint joint)
+     (sim-add-constraint (bp:sim bpc)
+                         joint))
+   (define (make-wheel x y)
+     
+     ;; The cylinder will be aligned on the Y-axis, but we
+     ;; want it to be on the Z-axis.
+     (make-cylinder 
+      ;; position
+      (vector x ;x 
+              0 ;y
+              0)
+      ;; dimensions
+      (vector (/ agent-diameter 5.)
+              (* 0.2 agent-diameter)
+              (/ agent-diameter 5.))
+      ;; mass
+      1.
+      ;; name
+      (format #f "wheel (~a,~a)" x y)))
+   (next-method)
+   
+   ;; Let's make the wheels.
+   (set! (bpc:wheels bpc) 
+         (let ((x (/ agent-diameter 2.))
+               (y (/ agent-diameter 2.)))
+           
+           (list (make-wheel (- x) y)
+                 (make-wheel x y)
+                 (make-wheel (- x) (- y))
+                 (make-wheel x (- y)))))
+   (for-each process-wheel (bpc:wheels bpc))
+   ;; Let's make the joints.
+   
+   (let ((agent (car (bp:objects bpc)))
+         (wheel1 (car (bpc:wheels bpc)))
+         (wheel2 (cadr (bpc:wheels bpc)))
+         (wheel3 (caddr (bpc:wheels bpc)))
+         (wheel4 (cadddr (bpc:wheels bpc)))
+         (x (/ agent-diameter 2.))
+         (z (/ agent-diameter 2.)))
+     
+     (set! (bpc:axes bpc) 
+           (map (lambda (position wheel)
+                  (set-position! wheel position)
+                  (make-hinge agent                            wheel
+                              position                         (vector 0 0 0)
+                              #(0 0 1)                         #(0 1 0)
+                              "axis"))
+                (list (vector (- x) 0 z)
+                      (vector x 0 z)
+                      (vector (- x) 0 (- z))
+                      (vector x 0 (- z)))
+                (bpc:wheels bpc)))
+     
+     (for-each process-joint (bpc:axes bpc))
+     
+     ;; Let's put a constraint on the car to only move along the x-axis.
+     (set! (bpc:slider bpc) (make-slider agent #(1 0 0)))
+                                        ;(process-joint (bpc:slider bpc))
+     )))
 
 (define-method (reset-physics (bpc <bullet-physics-car>))
   (map (lambda (joint)
