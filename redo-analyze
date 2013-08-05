@@ -1,0 +1,22 @@
+#!./eracs -b -s ./redo-analyze
+!#
+(use-modules (experiment)
+             (experiment-gen-count-vs-select-attn)
+             (emacsy util)
+             (oop goops save)
+             (oop goops))
+(format #t "prog args ~a~%" (program-arguments))
+(define argc (length (program-arguments)))
+(unless (= 2 argc)
+  (format #t "Usage: redo-analyze <filename>~%")
+  (exit 2))
+(define filename (cadr (program-arguments)))
+
+(define exp (load-experiment filename))
+
+(analyze-data! exp)
+(format #t "RESULTS: ~a~%" (exp:results exp))
+
+(exit 0)
+
+
