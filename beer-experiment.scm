@@ -18,7 +18,6 @@
  (srfi srfi-19)
  (srfi srfi-8) ;; receive
  (srfi srfi-11) ;; let-values
- (mathematica-plot plot)
  (freeze-random)
  (mathematica)
  (ice-9 q)
@@ -31,6 +30,12 @@
  (bullet-physics)
  (bullet-physics-car)
  (vector-math)
+ (physics-buffer)
+ (guile-user)
+ (physics-ui)
+ (scene-smob)
+ (mathematica-aux)
+ (camera)
  )
 
 (define physics-class <fode-physics>)

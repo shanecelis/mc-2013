@@ -23,7 +23,7 @@
   #:use-module (vector-math)
   #:use-module (physics)
   #:use-module (emacsy util)
-  #:export (bp:sim bp:objects)
+  #:export (bp:sim bp:objects update-fake-state)
  )
 
 (define-class-public <bullet-physics> (<physics>)

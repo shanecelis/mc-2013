@@ -11,6 +11,9 @@
              (bullet-physics)
              (oop goops save)
              (system repl error-handling))
+;; UGH.
+
+(load "beer-experiment.scm")
 
 (format #t "prog args ~a~%" (program-arguments))
 
@@ -32,15 +35,15 @@
        (run-experiment filename physics-class-arg)))))
 
 (define* (run-experiment filename #:optional physics-class-arg)
-                                        ;(define exp-class <gen-count-vs-select-attn-trial>)
-                                        ;(define exp-class <gen-count-vs-select-attn-trial-easier>)
+  ;;(define exp-class <gen-count-vs-select-attn-trial>)
+  (define exp-class <gen-count-vs-select-attn-trial-easier>)
   (define exp #f)
-  (define exp-class <gen-count-vs-select-attn-dummy>)
+  ;(define exp-class <gen-count-vs-select-attn-dummy>)
   (define trial-count 1) ;;10
   (define (make-trial) 
     (make-instance exp-class 
                    #:task-count 5 
-                   #:max-gen 1 ;; 100
+                   #:max-gen 3 ;; 100
                    #:max-speed 0.25
                    #:physics-class 
                    physics-class-arg
