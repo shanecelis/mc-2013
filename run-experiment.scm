@@ -1,4 +1,4 @@
-#!./eracs -b -s ./run-experiment.scm
+#!/usr/bin/env eracs -b -s ./run-experiment.scm
 !#
 (use-modules (experiment)
              (experiment-gen-count-vs-select-attn)
@@ -17,13 +17,13 @@
     (set! physics-class-arg (eval (read-from-string (caddr (program-arguments))) (interaction-environment)))
     (set! physics-class-arg <fode-physics>))
 ;(define exp-class <gen-count-vs-select-attn-trial>)
-(define exp-class <gen-count-vs-select-attn-trial-easier>)
-;(define exp-class <gen-count-vs-select-attn-dummy>)
-(define trial-count 14) ;;10
+;(define exp-class <gen-count-vs-select-attn-trial-easier>)
+(define exp-class <gen-count-vs-select-attn-dummy>)
+(define trial-count 1) ;;10
 (define (make-trial) 
   (make-instance exp-class 
                  #:task-count 5 
-                 #:max-gen 40 ;; 100
+                 #:max-gen 1 ;; 100
                  #:max-speed 0.25
                  #:physics-class 
                    physics-class-arg

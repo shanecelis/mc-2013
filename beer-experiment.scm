@@ -95,15 +95,16 @@
 
 (define (make-effector-func-proc ctrnn-state)
   (lambda (t i . rest)
-    (let ((first-effector-index (1+ sensor-count)))
-      (: ctrnn-state @ (first-effector-index + (i - 1))))))
+    (let* ((first-effector-index (1+ sensor-count))
+           (state (: ctrnn-state @ (first-effector-index + (i - 1)))))
+      #;(format #t "ctrnn state ~a~%" state)
+      (tanh state))))
 
 (define (make-effector-func-unified ctrnn-state)
-  (make-unified-procedure double 
-                          (lambda (t i . rest)
-                            (let ((first-effector-index (1+ sensor-count)))
-                              (: ctrnn-state @ (first-effector-index + (i - 1)))))
-                          (list double int '*)))
+  (let ((proc (make-effector-func-proc ctrnn-state)))
+   (make-unified-procedure double 
+                           proc
+                           (list double int '*))))
 
 (define (make-c-effector-func ctrnn-state)
   (make-unified-procedure double 
@@ -123,8 +124,10 @@
     (list t x1)))
 
 
-;(define make-effector-func make-effector-func-unified)
-(define make-effector-func make-c-effector-func)
+;; func-proc no longer works.
+;(define make-effector-func make-effector-func-proc)
+(define make-effector-func make-effector-func-unified)
+;(define make-effector-func make-c-effector-func)
 
 (define (random-range low high)
   (if (> low high)

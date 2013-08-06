@@ -42,13 +42,13 @@
                     (apply mylog "emacsy" pri-debug  format-msg args)))
 
 (set! *random-state* (random-state-from-platform))
-(set! debug-on-error? #f)
+(set! debug-on-error? #t)
 ; (use-modules (system vm trace))
 ; (trace-calls-to-procedure make-stack)
 (set! %load-hook (lambda (filename)
                    (mylog "load" pri-debug "Loading ~a .." filename)))
 (define profile? #f)
-(define spawn-threads? #f)
+(define spawn-threads? #t)
 
 (define (stop-profiling)
     (statprof-stop)
