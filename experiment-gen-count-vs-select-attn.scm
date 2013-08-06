@@ -6,6 +6,12 @@
   #:use-module (srfi srfi-26) ; cut cute
   #:use-module (srfi srfi-1)  ; take
   #:use-module (guile-user)
+  #:use-module (stats)
+  #:use-module (beer-initial-conditions)
+  #:use-module (beer-parameters)
+  #:use-module (mathematica)
+  #:use-module (mathematica-aux)
+  
   #:export (<gen-count-vs-select-attn-trial>
             <gen-count-vs-select-attn>
 
