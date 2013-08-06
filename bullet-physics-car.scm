@@ -1,5 +1,16 @@
 ;; bullet-physics-car.scm
 
+(define-module (bullet-physics-car)
+  #:use-module (bullet-physics)
+  #:use-module (oop goops)
+  #:use-module (bullet)
+  #:use-module (beer-parameters)
+  #:use-module (vector-math)
+  #:use-module (physics)
+  #:use-module (emacsy util)  
+  #:export (bpc:wheels bpc:axes bpc:slider)
+  )
+
 (define-class-public <bullet-physics-car> (<bullet-physics>)
   (wheels #:accessor bpc:wheels #:init-value '())
   (axes #:accessor bpc:axes #:init-value '())

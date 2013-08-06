@@ -24,6 +24,11 @@
  (emacsy emacsy)
  (emacsy core)
  (oop goops)
+ (fode-physics)
+ (physics)
+ (bullet-physics)
+ (bullet-physics-car)
+ (vector-math)
  )
 
 (define physics-class <fode-physics>)

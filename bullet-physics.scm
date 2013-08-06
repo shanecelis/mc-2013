@@ -16,12 +16,14 @@
 #;(define (make-bullet body-count effector)
   )
 
-(use-modules 
- (oop goops)
- (bullet)
- (beer-parameters)
- (vector-math)
- (physics)
+(define-module (bullet-physics)
+  #:use-module (oop goops)
+  #:use-module (bullet)
+  #:use-module (beer-parameters)
+  #:use-module (vector-math)
+  #:use-module (physics)
+  #:use-module (emacsy util)
+  #:export (bp:sim bp:objects)
  )
 
 (define-class-public <bullet-physics> (<physics>)
@@ -33,10 +35,10 @@
 
 ;; Agent and Objects need to be placed in separate collision groups.
 ;; http://bulletphysics.org/Bullet/BulletFull/classbtDiscreteDynamicsWorld.html#a8636fbb78c9d0d730262db987201840a
-(define agent-group 128)
-(define object-group 64) 
-(define wheel-group 256) 
-(define floor-group 3)                  ; StaticFilter
+(define-public agent-group 128)
+(define-public object-group 64) 
+(define-public wheel-group 256) 
+(define-public floor-group 3)                  ; StaticFilter
 (define-method (initialize (bp <bullet-physics>) initargs)
   (define (process-agent agent)
     (set-friction! agent 0.0001)
@@ -83,12 +85,12 @@
 (define-method (update-fake-state (bp <bullet-physics>))
   "Update this fake state vector as a means of communicating with the
 CTRNN."
-  (generalized-vector-set! (fp:state bp) 0 (get-time bp))
+  (array-set! (fp:state bp) (get-time bp) 0)
   (for-each (lambda (i)
-              (generalized-vector-set! 
-               (fp:state bp) (+ (* 2 i) 1) (object-x bp i))
-              (generalized-vector-set! 
-               (fp:state bp) (+ (* 2 i) 2) (object-y bp i)))
+              (array-set! 
+               (fp:state bp) (object-x bp i) (+ (* 2 i) 1))
+              (array-set! 
+               (fp:state bp) (object-y bp i) (+ (* 2 i) 2)))
             (range 0 (1- (object-count bp)))))
 
 (define-method (draw-physics scene (bp <bullet-physics>))
@@ -208,11 +210,6 @@ seconds."
     (vector-set! p y-axis (- (to-velocity v)))
     (set-velocity! body p)))
 
-(define object-x (make-procedure-with-setter object-x-ref object-x-set!))
-(define object-y (make-procedure-with-setter object-y-ref object-y-set!))
-
-(define object-vx (make-procedure-with-setter object-vx-ref object-vx-set!))
-(define object-vy (make-procedure-with-setter object-vy-ref object-vy-set!))
 
 (define eval-robot-render-speed 1)
 

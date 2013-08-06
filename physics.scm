@@ -4,7 +4,32 @@
             effector-count
             object-count
             effector-func
-            step-count))
+            step-count
+
+            get-time
+            set-time!
+            step-physics
+            draw-physics
+            undraw-physics
+            reset-physics
+            object-x-ref
+            object-x-set!
+
+            object-y-ref
+            object-y-set!
+
+            object-vx-ref
+            object-vx-set!
+
+            object-vy-ref
+            object-vy-set!
+            agent-motor-constant-set!
+            agent-motor-constant-ref
+            
+            ;; This shouldn't really be exposed should it?
+            fp:state
+            ))
+
 
 (define-class <physics> ()
   ;; Number of effectors/muscles/outputs the agent has.
@@ -26,3 +51,32 @@
   ;; (motor-constant #:getter motor-constant #:init-value 5)
   #;(max-sight-distance #:getter max-sight-distance #:init-value 205)
   )
+
+(define-generic get-time)
+(define-generic set-time!)
+(define-generic step-physics)
+(define-generic draw-physics)
+(define-generic undraw-physics)
+(define-generic reset-physics)
+
+(define-generic object-x-ref)
+(define-generic object-x-set!)
+
+(define-generic object-y-ref)
+(define-generic object-y-set!)
+
+(define-generic object-vx-ref)
+(define-generic object-vx-set!)
+
+(define-generic object-vy-ref)
+(define-generic object-vy-set!)
+
+(define-generic agent-motor-constant-set!)
+(define-generic agent-motor-constant-ref)
+(define-generic fp:state)
+
+(define-public object-x (make-procedure-with-setter object-x-ref object-x-set!))
+(define-public object-y (make-procedure-with-setter object-y-ref object-y-set!))
+
+(define-public object-vx (make-procedure-with-setter object-vx-ref object-vx-set!))
+(define-public object-vy (make-procedure-with-setter object-vy-ref object-vy-set!))

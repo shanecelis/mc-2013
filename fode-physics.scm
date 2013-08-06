@@ -1,11 +1,21 @@
 ;; fode-physics.scm
 
-;(load "bullet-beer.scm")
-
-(use-modules (oop goops)
-             (physics)
-             ((minimal-cognition fode)
-              #:renamer (symbol-prefix-proc 'fode:)))
+(define-module (fode-physics) 
+ 
+  #:use-module (vector-math)
+  #:use-module (emacsy util)
+  #:use-module (beer-parameters)
+  #:use-module (oop goops)
+  #:use-module (physics)
+  #:use-module (logging)
+  #:use-module ((minimal-cognition fode)
+                #:renamer (symbol-prefix-proc 'fode:))
+  #:export (<fode-physics>
+            fp:scene-actors
+            fp:params
+            fp:k-params
+            )
+  )
 
 (define-class-public <fode-physics> (<physics>)
   (params #:init-value #f)
@@ -52,7 +62,7 @@
   (set! (fode:object-vx (fp:k-params fp) 0) k))
 
 (define-method (agent-motor-constant-ref (fp <fode-physics>))
-  (object-vx-ref fp i))
+  (fode:object-vx (fp:k-params fp) 0))
 
 (define-method (object-vy-set! (fp <fode-physics>) i v)
   (set! (fode:object-vy (fp:k-params fp) i) v))
