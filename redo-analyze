@@ -1,22 +1,17 @@
-#!./eracs -b -s ./redo-analyze
+#!/usr/bin/env guile \
+--debug -e main -s 
 !#
-(use-modules (experiment)
-             (experiment-gen-count-vs-select-attn)
-             (emacsy util)
-             (oop goops save)
-             (oop goops))
-(format #t "prog args ~a~%" (program-arguments))
-(define argc (length (program-arguments)))
-(unless (= 2 argc)
-  (format #t "Usage: redo-analyze <filename>~%")
-  (exit 2))
-(define filename (cadr (program-arguments)))
+(use-modules (experiment))
 
-(define exp (load-experiment filename))
+(define (main args)
+  (let ((argc (length args))
+        (filename #f)
+        (exp #f))
+    (unless (= 2 argc)
+      (format #t "Usage: redo-analyze <filename>~%")
+      (exit 2))
+    (set! filename (cadr args))
 
-(analyze-data! exp)
-(format #t "RESULTS: ~a~%" (exp:results exp))
+    (set! exp (read-experiment filename))
 
-(exit 0)
-
-
+    (format #t "analyze-data! ~a~%" (analyze-data! exp))))

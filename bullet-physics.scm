@@ -23,6 +23,11 @@
   #:use-module (vector-math)
   #:use-module (physics)
   #:use-module (emacsy util)
+  #:use-module (scene-smob)
+  #:use-module (physics-ui)
+  #:use-module (physics-buffer)
+  #:use-module (guile-user)
+  
   #:export (bp:sim bp:objects update-fake-state)
  )
 
@@ -102,22 +107,6 @@ CTRNN."
   "Draws the bullet physics simulation."
   (if scene 
       (scene-clear-physics scene)))
-
-
-(define (go-right t i)
-  (if (= i 1)
-      1.0
-      -1.0))
-
-(define (go-left t i)
-  ;(format #t "GO LEFT~%")
-  (if (= i 1)
-      0.0 ;; or -1.0
-      1.0))
-
-(define (go-nowhere t i)
-  0.)
-
 
 (define-method (get-time (bp <bullet-physics>))
   (sim-time (bp:sim bp)))

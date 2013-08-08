@@ -11,6 +11,11 @@
   #:export (bpc:wheels bpc:axes bpc:slider)
   )
 
+;; This is the factor that is multiplied by the wheels.  Basically the
+;; wheels' motor constant.
+(define velocity-constant 12.)
+
+
 (define-class-public <bullet-physics-car> (<bullet-physics>)
   (wheels #:accessor bpc:wheels #:init-value '())
   (axes #:accessor bpc:axes #:init-value '())
@@ -102,23 +107,21 @@
          (sim-remove-body (bp:sim bpc) body)) 
        (bpc:wheels bpc))
   (set! (bpc:wheels bpc) '())
-  (next-method)
-  )
+  (next-method))
 
 (define-method (step-physics (bp <bullet-physics-car>) h)
   "Apply the effectors and step the physics simulation forward by h
 seconds."
+
   (if (effector-func bp)
       (let* ((e1 ((effector-func bp) (get-time bp) 1))
              (e2 ((effector-func bp) (get-time bp) 2))
-             (velocity-constant 10.)
              (agent (car (bp:objects bp)))
              (motor1 (car (bpc:axes bp)))
              (motor2 (cadr (bpc:axes bp)))
              (motor3 (caddr (bpc:axes bp)))
-             (motor4 (cadddr (bpc:axes bp)))
-
-             )
+             (motor4 (cadddr (bpc:axes bp))))
+        #;(format #t "e1 ~a e2 ~a ~%" e1 e2)
         (for-each (lambda (motor) (actuate-angular-motor motor
                                           (* velocity-constant e1))) (list motor1 motor3))
         (for-each (lambda (motor) (actuate-angular-motor motor

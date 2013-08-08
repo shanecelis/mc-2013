@@ -9,7 +9,10 @@
              (osc)
              (emacsy emacsy)
              (statprof)
-             (logging))
+             (logging)
+             (ice-9 readline)
+             )
+(activate-readline)
 
 (define-interactive (reload-log-config)
   (log4c-reread))
@@ -77,12 +80,12 @@
              (experiment-gen-count-vs-select-attn)
              (oop goops)
              (oop goops save)
+             (beer-parameters)
+             (bullet-physics)
+             (bullet-physics-car)
+             (fode-physics)
              )
 
-(load "beer-parameters.scm") 
-(load "bullet-physics.scm")
-(load "bullet-physics-car.scm")
-(load "fode-physics.scm")
 (load "beer-experiment.scm")
 
 #;(add-hook! post-window-open-hook 

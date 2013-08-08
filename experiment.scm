@@ -3,28 +3,39 @@
 
 (define-module (experiment)
   #:use-module (oop goops)
+  #:use-module (oop goops save)
   #:export (<experiment>
             exp:parameters
             exp:data
             exp:results
+            exp:save-modules
             generate-parameters!
             run-experiment!
             analyze-data!
             copy-parameters!
             clear-experiment!
-            
+            save-experiment
+            read-experiment
             <parent-experiment>
             exp:child-experiments
             ))
 
 (define-class <experiment> ()
+  ;; Get rid of these generic places to put data.  It only encourages
+  ;; bad behavior.  Just create whatever members you need in the
+  ;; subclasses.
   (parameters #:accessor exp:parameters #:init-value #f)
   (data #:accessor exp:data #:init-value #f)
-  (results #:accessor exp:results #:init-value #f))
+  (results #:accessor exp:results #:init-value #f)
+  
+  (save-modules #:accessor exp:save-modules #:init-form '((oop goops)
+                                                          (oop goops save)
+                                                          (experiment))))
 
 (define-generic generate-parameters!) 
 (define-generic run-experiment!)
 (define-generic analyze-data!)
+(define-generic save-experiment)
 
 (define-method (generate-parameters! (exp <experiment>))
   #f)
@@ -34,6 +45,18 @@
 
 (define-method (analyze-data! (exp <experiment>))
   #f)
+
+(define-method (save-experiment (exp <experiment>) filename)
+ (call-with-output-file filename
+   (lambda (port)
+     (save-objects (acons 'experiment exp '()) 
+                   port 
+                   '() 
+                   (exp:save-modules exp)))))
+
+(define-method (read-experiment filename)
+  (let ((objects (load-objects filename)))
+    (assq-ref objects 'experiment)))
 
 (define-method (copy-parameters! (dest <experiment>) (src <experiment>))
   (set! (exp:parameters dest) (exp:parameters src)))

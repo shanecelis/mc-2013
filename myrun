@@ -1,0 +1,5 @@
+trial_count=14;
+for i in $(range 3 $trial_count); do
+    ./run-experiment bullet-$i.dat '<bullet-physics-car>'; 
+    ./run-experiment fode-$i.dat '<fode-physics>';
+done

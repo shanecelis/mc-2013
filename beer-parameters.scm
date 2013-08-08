@@ -7,8 +7,8 @@
 (define-public internode-count 10)
 (define-public effector-count 2)
 (define-public node-count (+ sensor-count internode-count effector-count))
-(define-public body-count 3) ;; 1 agent, 2 objects
-;(define-public body-count 2)
+;(define-public body-count 3) ;; 1 agent, 2 objects
+(define-public body-count 2) ;; 1 agent, 1 object
 (define-public agent-diameter 30)
 (define-public object-diameter 26)
 (define-public motor-constant 5.0)

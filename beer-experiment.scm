@@ -36,6 +36,8 @@
  (scene-smob)
  (mathematica-aux)
  (camera)
+ (optimize-transition)
+ (experiment-transition)
  )
 
 (define physics-class <fode-physics>)
@@ -114,9 +116,9 @@
 
 (define (make-effector-func-unified ctrnn-state)
   (let ((proc (make-effector-func-proc ctrnn-state)))
-   (make-unified-procedure double 
-                           proc
-                           (list double int '*))))
+    (make-unified-procedure double 
+                            proc
+                            (list double int '*))))
 
 (define (make-c-effector-func ctrnn-state)
   (make-unified-procedure double 
@@ -129,6 +131,7 @@
 ;; func-proc no longer works.
 ;(define make-effector-func make-effector-func-proc)
 (define make-effector-func make-effector-func-unified)
+
 ;(define make-effector-func make-c-effector-func)
 
 (define fode #f)
@@ -293,7 +296,8 @@
 
 
 ;(define choose-initial-conditions (make-freeze-random beer-choose-initial-conditions))
-(define choose-initial-conditions (make-parametric-IC 50.))
+;(define choose-initial-conditions (make-parametric-IC 50.))
+(define choose-initial-conditions (make-apply-IC (left-IC)))
 
 (define-interactive (change-IC)
   (set! choose-initial-conditions (make-freeze-random beer-choose-initial-conditions)))
@@ -521,15 +525,36 @@
                #:object-count body-count 
                #:effector-func 
                (make-effector-func ctrnn-state)
+
+               ;; XXX I broke the old interface.  Now it _requires_ a unified-procedure.
+               ;; Not what I intended.
+#;               (make-unified-procedure 
+                 double 
 ;               go-nowhere
-;               go-left
-;                go-right
+;                 go-left
+                 go-right
+                 (list double int '*))
                
                ))
+  
   (set! fode-state (fix-physics fode))
   (choose-initial-conditions fode fode-state)
   (set! (input-func ctrnn) (make-current-vision-input))
   (set! vision-line-actors #f))
+
+(define (go-right t i . rest)
+  (if (= i 1)
+      1.0
+      -1.0))
+
+(define (go-left t i . rest)
+  ;(format #t "GO LEFT~%")
+  (if (= i 1)
+      0.0 ;; or -1.0
+      1.0))
+
+(define (go-nowhere t i)
+  0.)
 
 
 (define-interactive (randomize-brain)
@@ -612,7 +637,8 @@
 
 ;(define initial-conditions (list case-1-IC case-2-IC case-3-IC))
 
-(define initial-conditions (list choose-initial-conditions))
+;(define initial-conditions (list choose-initial-conditions))
+(define initial-conditions (map make-apply-IC (list (left-IC) (right-IC))))
 
 (define-interactive (add-IC)
   (cons! (make-freeze-random beer-choose-initial-conditions) initial-conditions))
@@ -636,7 +662,35 @@
                           (list-ref initial-conditions (1- i))) 
                          0) fitnesses))
    (set! body-count last-body-count)
-   (let ((total-fitness (vector (apply max fitnesses))))
+   ;; is max ok here?
+   (let ((total-fitness (vector (apply max fitnesses)
+                                #;(mean fitnesses))))
+     (message "Aggregate/Max fitness ~a." total-fitness)
+     total-fitness
+     )))
+
+(define-fitness
+  ((minimize "the distance to left object.")
+   (minimize "the distance to right object."))
+  (left-right-task
+   #:optional 
+   (genome current-genome)
+   (my-initial-conditions initial-conditions))
+  
+  (let* ((initial-conditions (run-if-thunkable my-initial-conditions))
+         (trials (length initial-conditions))
+         (last-body-count body-count)
+         (fitnesses '()))
+    
+    (do ((i 1 (1+ i)))
+        ((> i trials))
+      (cons! (vector-ref (beer-selective-attention 
+                          genome
+                          (list-ref initial-conditions (1- i))) 
+                         0) fitnesses))
+   (set! body-count last-body-count)
+   ;; is max ok here?
+   (let ((total-fitness (list->vector fitnesses)))
      (message "Aggregate/Max fitness ~a." total-fitness)
      total-fitness
      )))
@@ -719,8 +773,9 @@
 (define (individual-succeeded? fitness)
   "Did the individual come in contact with the object."
   (format #t "checking fitness ~a~%" fitness)
-  (let ((distance (array-ref fitness 0)))
-    (<= distance successful-distance)))
+  (every (lambda (i)
+           (let ((distance (array-ref fitness i)))
+             (<= distance successful-distance))) (iota (array-length fitness))))
 
 (define (any-individual-succeeded? generation results)
   "Returns true if we haven't found a successful candidate.  Input is (rank genome objective)."
@@ -801,6 +856,8 @@ objective. Genome and fitness are #f64 arrays."
   (if (called-interactively?) 
       ;; Let's the message be displayed before going into the big
       ;; optimization procedure.
+      ;;
+      ;; (message) should probably do that automatically then, right?
       (block-yield))
 
   (let* (#;
@@ -836,7 +893,7 @@ objective. Genome and fitness are #f64 arrays."
                                    ;; XXX The < or > needs to be used
                                    ;; in reference to whether this is
                                    ;; being minimized or maximized.
-                                   (: (cdr a) @ 0 < (cdr b) @ 0))))
+                                   (< (: (cdr a) @ 0) (: (cdr b) @ 0)))))
     (set! last-results results)
 
     (set! current-genome (caar results))
@@ -903,6 +960,28 @@ given tasks."
                                              continue-search?)
       (list results gen-count eval-count))))
 
+(define* (generation-count-to-do3 my-initial-conditions 
+                                 #:optional 
+                                 (max-generations #f) 
+                                 (seed-population '()) 
+                                 (continue-search? #f))
+  "Determine the number of generations required to succeed at the
+given tasks."
+  (define-fitness
+    ((minimize "left distance")
+     (minimize "right distance"))
+    (fitness-fn genome)
+    (left-right-task genome my-initial-conditions))
+  (let ()
+    ;; results are ((genome . objective-value) ... )
+    (receive (results gen-count eval-count) (optimize 
+                                             fitness-fn
+                                             max-generations
+                                             seed-population
+                                             continue-search?)
+      (list results gen-count eval-count))))
+
 
 ;(optimize beer-selective-attention 1)
 
+(export make-effector-func reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? physics-class left-right-task)

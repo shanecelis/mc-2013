@@ -1,0 +1,25 @@
+#!/usr/bin/env guile \
+--debug -e main -s 
+!#
+(use-modules (experiment)
+             (oop goops)
+             (experiment-transition)
+             )
+
+(define (main args)
+  (format #t "args ~a~%" args)
+  (let ((argc (length args))
+        (filename #f)
+        (exp #f)
+        (exps #f))
+    (when (= 1 argc)
+      (format #t "Usage: ~a <filename ...>~%" (car args))
+      (exit 2))
+    
+    (set! exps (map read-experiment (cdr args)))
+
+    (set! exp (make <experiment-transition-parent>
+              #:child-experiments
+              exps))
+
+    (format #t "analyze-data! ~a~%" (analyze-data! exp))))

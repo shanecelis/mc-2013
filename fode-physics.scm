@@ -8,6 +8,7 @@
   #:use-module (oop goops)
   #:use-module (physics)
   #:use-module (logging)
+  #:use-module (scene-smob)
   #:use-module ((minimal-cognition fode)
                 #:renamer (symbol-prefix-proc 'fode:))
   #:export (<fode-physics>
