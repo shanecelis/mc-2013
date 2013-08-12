@@ -11,14 +11,19 @@
   #:use-module (fode-physics)
   #:use-module (guile-user)
   #:use-module (ice-9 match)
-  
-  #:export (left-IC right-IC <experiment-transition-trial> 
-                    ICs 
-                    exp:mc-genome exp:max-gen exp:gen-count exp:eval-count exp:wall-clock-time
-                    <experiment-transition-parent> 
-                    )
- 
-  )
+  #:use-module (eval-robot)
+  #:export (
+            left-IC 
+            right-IC 
+            <experiment-transition-trial> 
+            ICs 
+            exp:mc-genome
+            exp:max-gen
+            exp:gen-count
+            exp:eval-count
+            exp:wall-clock-time
+            <experiment-transition-parent> 
+            ))
 
 (define-class <experiment-transition-trial> (<experiment>)
   (ICs #:accessor exp:ICs)
@@ -87,7 +92,7 @@
       (set! (exp:wall-clock-time exp) (- (emacsy-time) start-time))))))
 
 (define-method (run-experiment! (exp <experiment-fode->bullet-trail>))
-  (nsga-ii-search
+  (nsga-ii-search ; Need the fitness function.
    #:gene-count (tp:gene-count (exp:transition-params exp))
    #:objective-count 2
    #:population-count 12

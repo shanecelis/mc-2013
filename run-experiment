@@ -11,7 +11,9 @@
              (fode-physics)
              (bullet-physics)
              (oop goops save)
-             (system repl error-handling))
+             (system repl error-handling)
+             (eval-robot)
+             )
 ;; UGH. beer-experiment.scm should be put into a module or migrated
 ;; into several modules more likely.
 (load "beer-experiment.scm")

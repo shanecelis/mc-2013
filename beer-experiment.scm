@@ -38,9 +38,10 @@
  (camera)
  (optimize-transition)
  (experiment-transition)
+ (eval-robot)
  )
 
-(define physics-class <fode-physics>)
+(set! physics-class <fode-physics>)
 ;(define physics-class <bullet-physics>)
 ;(define physics-class <bullet-physics-car>)
 
@@ -75,6 +76,11 @@
 
 (define ctrnn (make-n-ctrnn node-count))
 (define ctrnn-state (make-ctrnn-state ctrnn))
+
+(define init-ctrnn-state (make-ctrnn-state ctrnn))
+;; XXX Let's not randomize just yet.
+;(randomize-ctrnn-state! init-ctrnn-state)
+
 
 ;; https://gist.github.com/valvallow/413146
 (define-syntax dotimes
@@ -130,30 +136,13 @@
 
 ;; func-proc no longer works.
 ;(define make-effector-func make-effector-func-proc)
-(define make-effector-func make-effector-func-unified)
+(set! make-effector-func make-effector-func-unified)
 
 ;(define make-effector-func make-c-effector-func)
 
 (define fode #f)
 
-(define ;(make-fode-state* fode-params)
-  (fix-physics physics)
-  "Make an FODE state and initialize it to some fixed values."
-  (let ((ty physics))
-    ;; agent
-    (set! (object-x ty 0) 0.)
-    (set! (object-y ty 0) 0.)
-    ; NEVER set the initial velocity, it's actually a parameter for the input.
-    (set! (object-vx ty 0) 0.)
-    (set! (object-vy ty 0) 0.)
-    (agent-motor-constant-set! ty motor-constant)
 
-    ;; object positions
-    (for-each (lambda (i)
-                (set! (object-x ty i) (+ i -3.))
-                (set! (object-y ty 1) max-height))
-              (range 1 (1- (object-count physics))))
-    physics))
 
 ;; XXX huh, have to be careful about when define-method-public is
 ;; called; here using it instead of define-method break it.
@@ -513,6 +502,8 @@
             (make-collect-vision-values scheme-vision)
             scheme-vision))))
 
+(set! make-vision-func make-current-vision-input)
+
 (define-interactive (reset-fode)
   (genome->ctrnn current-genome ctrnn)
   ;(randomize-ctrnn-state! ctrnn-state)
@@ -695,74 +686,7 @@
      total-fitness
      )))
 
-(define init-ctrnn-state (make-ctrnn-state ctrnn))
-;; XXX Let's not randomize just yet.
-;(randomize-ctrnn-state! init-ctrnn-state)
 
-(define*
-  (eval-beer-robot-render genome
-                          #:key 
-                          (step-fn identity)
-                          (begin-fn identity)
-                          (end-fn identity)
-                          (max-tick-count 2000))
-  (let* ((buffer (switch-to-buffer "*eval-robot*" <physics-buffer>))
-         (scene (scene buffer)))
-    (define (draw fode-state)
-      (when draw-display?
-          (draw-physics scene fode-state)
-          (if (q-empty? event-queue)
-             (block-yield)
-             (primitive-command-tick))))
-    (eval-beer-robot-headless genome
-                              #:step-fn (lambda (fode-state) 
-                                          (draw fode-state) 
-                                          (step-fn fode-state))
-                              #:begin-fn begin-fn
-                              #:end-fn end-fn
-                              #:max-tick-count max-tick-count)))
-
-(define*
-  (eval-beer-robot-headless genome
-                   #:key 
-                   (step-fn identity)
-                   (begin-fn identity)
-                   (end-fn identity)
-                   (max-tick-count 2000))
-  (let* ((ctrnn (make-n-ctrnn node-count))
-         (ctrnn-state (make-ctrnn-state ctrnn))
-         (effector-func (make-effector-func ctrnn-state))
-         (fode (make physics-class
-                 #:object-count body-count 
-                 #:effector-func effector-func))
-         (fode-state (fix-physics fode))
-         (vision-input (make-current-vision-input #f ; don't draw.
-                                                  fode-state
-                                                  ))
-         (tick-count 0))
-    #;(choose-initial-conditions fode fode-state)
-    ;(randomize-ctrnn-state! ctrnn-state)
-    ;(vector-move-left! init-ctrnn-state 0 (vector-length init-ctrnn-state) ctrnn-state 0)
-    (array-copy! init-ctrnn-state ctrnn-state)
-    (genome->ctrnn genome ctrnn)
-    (set! (input-func ctrnn) vision-input)
-    #;(format #t "begin state ~a~%~%" (vector-sum ctrnn-state))
-    (begin-fn fode-state)
-    (while (and 
-            (< tick-count max-tick-count) 
-            (step-fn fode-state))
-      (if #t #;(= 0 (mod tick-count update-ctrnn-freq))
-          (if (not (step-ctrnn ctrnn-state h ctrnn))
-              (throw 'step-ctrnn-error)))
-      (if (not (step-physics fode-state h))
-          (throw 'step-physics-error))
-      (incr! tick-count (step-count fode-state))
-      #;(format #t "Tick ~a~%" tick-count))
-    #;(format #t "after state ~a~%" (vector-sum ctrnn-state))
-    #;(format #t "step-count ~a~%"(step-count fode-state))
-    (end-fn fode-state)))
-
-(define eval-beer-robot eval-beer-robot-headless)
 
 (define last-fitness-func #f) 
 (define last-results #f)
@@ -984,4 +908,4 @@ given tasks."
 
 ;(optimize beer-selective-attention 1)
 
-(export make-effector-func reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? physics-class left-right-task)
+(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task)
