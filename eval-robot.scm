@@ -1,17 +1,26 @@
 (define-module (eval-robot)
   #:use-module (ice-9 optargs)
+  #:use-module (ice-9 q)
   #:use-module (emacsy emacsy)
   #:use-module (beer-parameters)
   #:use-module (minimal-cognition ctrnn)
   #:use-module (oop goops)
-  #:use-module (physics)
+  #:use-module (physics)  
+  #:use-module (physics-buffer)
+  #:use-module (physics-ui)
   #:use-module (srfi srfi-1)
-  #:export (eval-beer-robot
+  #:use-module (scene-smob)
+  #:export (
+            ;; Procedures
             eval-beer-robot-render
             eval-beer-robot-headless
-            make-effector-func
+            fix-physics
+            
+            ;; Variables (Settable)
             physics-class
+            make-effector-func
             make-vision-func
+            eval-beer-robot
             ))
 
 (define make-effector-func #f)
@@ -20,7 +29,7 @@
 
 (define physics-class #f)
 
-(define ;(make-fode-state* fode-params)
+(define
   (fix-physics physics)
   "Make an FODE state and initialize it to some fixed values."
   (let ((ty physics))
@@ -50,11 +59,10 @@
   (let* ((buffer (switch-to-buffer "*eval-robot*" <physics-buffer>))
          (scene (scene buffer)))
     (define (draw fode-state)
-      (when draw-display?
-          (draw-physics scene fode-state)
-          (if (q-empty? event-queue)
-             (block-yield)
-             (primitive-command-tick))))
+      (draw-physics scene fode-state)
+      (if (q-empty? event-queue)
+          (block-yield)
+          (primitive-command-tick)))
     (eval-beer-robot-headless genome
                               #:step-fn (lambda (fode-state) 
                                           (draw fode-state) 

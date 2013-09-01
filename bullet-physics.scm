@@ -130,7 +130,7 @@ seconds."
                       0.) 
                      #(0. 0. 0.))))
   (update-fake-state bp)
-  (throw 'sim-tick (bp:sim bp) h (step-count bp)))
+  (sim-tick (bp:sim bp) h (step-count bp)))
 
 (define-method (reset-physics (bp <bullet-physics>))
   (set-time! bp 0.)

@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]; then
+   echo "usage: $0 <dir>" >&2;
+   exit 2;
+fi
+
+dir="$1"
+./export-data $dir/fode-*.dat > $dir/fode.m
+./export-data $dir/bullet-*.dat > $dir/bullet.m
+./export-data $dir/f2b*.dat > $dir/f2b.m
+

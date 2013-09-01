@@ -7,7 +7,6 @@
 
 (define (main args)
   (let ((argc (length args))
-        (filename #f)
         (exp #f)
         (exps #f))
     (when (= 1 argc)
@@ -20,6 +19,4 @@
               #:child-experiments
               exps))
 
-    (analyze-data! exp)
-    
-    ))
+    (export-data exp (current-output-port))))

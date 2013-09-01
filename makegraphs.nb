@@ -1,0 +1,1381 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     55234,       1372]
+NotebookOptionsPosition[     52550,       1277]
+NotebookOutlinePosition[     52927,       1294]
+CellTagsIndexPosition[     52884,       1291]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Needs", "[", "\"\<ErrorBarPlots`\>\"", "]"}], ";"}]], "Input",
+ CellChangeTimes->{{3.5855177611609497`*^9, 3.5855177611712303`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Needs", "[", "\"\<shane`\>\"", "]"}]], "Input",
+ CellChangeTimes->{{3.585521131156405*^9, 3.585521135262165*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+  "SetDirectory", "[", 
+   "\"\</Users/shane/School/uvm/CSYS-395-evolutionary-robotics/noweb-eracs/mc-\
+2013\>\"", "]"}], ";"}]], "Input",
+ CellChangeTimes->{{3.585517792839031*^9, 3.5855178023110456`*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"fode", " ", "=", " ", 
+  RowBox[{"Import", "[", "\"\<results-2/fode.m\>\"", "]"}]}]], "Input",
+ CellChangeTimes->{{3.585517875584495*^9, 3.5855178834728117`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"genCounts", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "23", ",", "49", ",", "28", ",", "11", ",", "29", ",", "50", ",", "4", 
+      ",", "24", ",", "9", ",", "12", ",", "10", ",", "5", ",", "10", ",", 
+      "30", ",", "12", ",", "6", ",", "15", ",", "32", ",", "5", ",", "9"}], 
+     "}"}]}], ",", 
+   RowBox[{"evalCounts", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "276", ",", "588", ",", "336", ",", "132", ",", "348", ",", "600", ",", 
+      "48", ",", "288", ",", "108", ",", "144", ",", "120", ",", "60", ",", 
+      "120", ",", "360", ",", "144", ",", "72", ",", "180", ",", "384", ",", 
+      "60", ",", "108"}], "}"}]}], ",", 
+   RowBox[{"wallClockTimes", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "45.079999923706055`", ",", "90.12999987602234`", ",", 
+      "52.5699999332428`", ",", "20.94000005722046`", ",", 
+      "54.22000002861023`", ",", "92.28999996185303`", ",", 
+      "7.809999942779541`", ",", "44.890000104904175`", ",", 
+      "17.040000200271606`", ",", "22.62000012397766`", ",", 
+      "18.91000008583069`", ",", "9.65999984741211`", ",", 
+      "18.81000018119812`", ",", "57.93999981880188`", ",", 
+      "23.77999997138977`", ",", "12.089999914169312`", ",", 
+      "28.579999923706055`", ",", "59.540000200271606`", ",", 
+      "9.690000057220459`", ",", "17.140000104904175`"}], "}"}]}], ",", 
+   RowBox[{"success", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "0.`", ",", 
+      "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", 
+      "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", 
+      "1.`", ",", "1.`"}], "}"}]}]}], "}"}]], "Output",
+ CellChangeTimes->{3.586698188362463*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"bullet", " ", "=", " ", 
+  RowBox[{"Import", "[", "\"\<results-2/bullet.m\>\"", "]"}]}]], "Input",
+ CellChangeTimes->{{3.585517875584495*^9, 3.5855178834728117`*^9}, {
+  3.585517968576201*^9, 3.5855179747295427`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"genCounts", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "13", ",", "10", ",", "23", ",", "39", ",", "11", ",", "25", ",", "27", 
+      ",", "24", ",", "39", ",", "8", ",", "25", ",", "1", ",", "20", ",", 
+      "33", ",", "23", ",", "20", ",", "18", ",", "49", ",", "13", ",", 
+      "28"}], "}"}]}], ",", 
+   RowBox[{"evalCounts", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "156", ",", "120", ",", "276", ",", "468", ",", "132", ",", "300", ",", 
+      "324", ",", "288", ",", "468", ",", "96", ",", "300", ",", "12", ",", 
+      "240", ",", "396", ",", "276", ",", "240", ",", "216", ",", "588", ",", 
+      "156", ",", "336"}], "}"}]}], ",", 
+   RowBox[{"wallClockTimes", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "30.06000018119812`", ",", "23.199999809265137`", ",", 
+      "52.77999997138977`", ",", "92.23000001907349`", ",", 
+      "25.66000008583069`", ",", "58.3199999332428`", ",", 
+      "62.08999991416931`", ",", "55.109999895095825`", ",", 
+      "92.3199999332428`", ",", "18.740000009536743`", ",", 
+      "57.109999895095825`", ",", "2.7699999809265137`", ",", 
+      "46.079999923706055`", ",", "81.19000005722046`", ",", 
+      "56.91000008583069`", ",", "48.50999999046326`", ",", 
+      "44.00999999046326`", ",", "117.55999994277954`", ",", 
+      "30.069999933242798`", ",", "63.950000047683716`"}], "}"}]}], ",", 
+   RowBox[{"success", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", 
+      "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", 
+      "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", 
+      "1.`", ",", "1.`"}], "}"}]}]}], "}"}]], "Output",
+ CellChangeTimes->{3.5866981884191227`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"f2b", " ", "=", " ", 
+  RowBox[{"Import", "[", "\"\<results-2/f2b2.m\>\"", "]"}]}]], "Input",
+ CellChangeTimes->{{3.5855179766272717`*^9, 3.5855179854108677`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"genCounts", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "2", ",", "1", ",", "1", ",", "5", ",", "1", ",", "1", ",", "1", ",", 
+      "1", ",", "5", ",", "1", ",", "1", ",", "1", ",", "3", ",", "1", ",", 
+      "1", ",", "1", ",", "12", ",", "5", ",", "1"}], "}"}]}], ",", 
+   RowBox[{"evalCounts", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "24", ",", "12", ",", "12", ",", "60", ",", "12", ",", "12", ",", "12", 
+      ",", "12", ",", "60", ",", "12", ",", "12", ",", "12", ",", "36", ",", 
+      "12", ",", "12", ",", "12", ",", "144", ",", "60", ",", "12"}], "}"}]}],
+    ",", 
+   RowBox[{"wallClockTimes", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "9.149999856948853`", ",", "4.9100000858306885`", ",", 
+      "4.909999847412109`", ",", "23.480000019073486`", ",", 
+      "4.950000047683716`", ",", "4.919999837875366`", ",", 
+      "4.929999828338623`", ",", "4.900000095367432`", ",", 
+      "22.990000009536743`", ",", "4.909999847412109`", ",", 
+      "4.920000076293945`", ",", "4.9100000858306885`", ",", 
+      "16.200000047683716`", ",", "5.1600000858306885`", ",", 
+      "5.21999979019165`", ",", "5.039999961853027`", ",", "53.75`", ",", 
+      "22.959999799728394`", ",", "4.920000076293945`"}], "}"}]}], ",", 
+   RowBox[{"success", "\[Rule]", 
+    RowBox[{"{", 
+     RowBox[{
+     "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", 
+      "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", 
+      "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", 
+      "1.`"}], "}"}]}]}], "}"}]], "Output",
+ CellChangeTimes->{3.586698188482386*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"standardErrorOfMean", "[", "list_", "]"}], " ", ":=", " ", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"n", ",", "s"}], "}"}], ",", 
+    RowBox[{
+     RowBox[{"s", "=", 
+      RowBox[{"StandardDeviation", "[", "list", "]"}]}], ";", 
+     "\[IndentingNewLine]", 
+     RowBox[{"n", "=", 
+      RowBox[{"Length", "[", "list", "]"}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"s", "/", 
+      RowBox[{"n", "^", 
+       RowBox[{"(", 
+        RowBox[{"1", "/", "2"}], ")"}]}]}]}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.585521189902534*^9, 3.585521227103503*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"meanAndDev", "[", 
+   RowBox[{"lists_", ",", " ", "key_"}], "]"}], " ", ":=", " ", 
+  RowBox[{"Map", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Mean", "[", 
+        RowBox[{"key", " ", "/.", " ", "#"}], "]"}], ",", " ", 
+       RowBox[{"standardErrorOfMean", "[", 
+        RowBox[{"key", " ", "/.", " ", "#"}], "]"}]}], "}"}], "&"}], ",", " ",
+     "lists"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.585518326692835*^9, 3.585518345290202*^9}, {
+  3.585521141281117*^9, 3.585521162053488*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"show", "[", 
+   RowBox[{"lists_", ",", " ", "key_"}], "]"}], " ", ":=", " ", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", "}"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"ErrorListPlot", "[", 
+     RowBox[{
+      RowBox[{"meanAndDev", "[", 
+       RowBox[{"lists", ",", " ", "key"}], "]"}], ",", " ", 
+      RowBox[{"PlotRange", " ", "\[Rule]", " ", "All"}], ",", " ", 
+      RowBox[{"AxesOrigin", " ", "\[Rule]", " ", 
+       RowBox[{"{", 
+        RowBox[{"0", ",", " ", "0"}], "}"}]}]}], "]"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.585518088286881*^9, 3.585518233788273*^9}, {
+  3.58551827693967*^9, 3.58551827751538*^9}, {3.5855183432408037`*^9, 
+  3.585518354127997*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"meanAndDev", "[", 
+  RowBox[{"lists", ",", " ", "genCounts"}], "]"}]], "Input",
+ CellChangeTimes->{{3.585521244851811*^9, 3.58552125177976*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     FractionBox["373", "20"], ",", 
+     FractionBox[
+      RowBox[{"11", " ", 
+       SqrtBox[
+        FractionBox["611", "19"]]}], "20"]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     FractionBox["449", "20"], ",", 
+     FractionBox[
+      RowBox[{"3", " ", 
+       SqrtBox[
+        FractionBox["5771", "19"]]}], "20"]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     FractionBox["45", "19"], ",", 
+     FractionBox[
+      SqrtBox["1315"], "57"]}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.585521252255196*^9, 3.5855212865556717`*^9, 
+  3.586698188675139*^9, 3.586698234223381*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"lists", " ", "=", " ", 
+   RowBox[{"{", 
+    RowBox[{"fode", ",", " ", "bullet", ",", " ", "f2b"}], "}"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.585518391320998*^9, 3.58551839255293*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"lists1", " ", "=", " ", 
+  RowBox[{"Map", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"Import", "[", 
+      RowBox[{"\"\<results-1/\>\"", "<>", " ", "#", " ", "<>", "\"\<.m\>\""}],
+       "]"}], "&"}], ",", " ", 
+    RowBox[{"{", 
+     RowBox[{
+     "\"\<fode\>\"", ",", " ", "\"\<bullet\>\"", ",", " ", "\"\<f2b\>\""}], 
+     "}"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.585519828928052*^9, 3.5855198669580727`*^9}, {
+  3.585519922312008*^9, 3.5855199225094423`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"genCounts", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "15", ",", "5", ",", "20", ",", "50", ",", "50", ",", "15", ",", "10", 
+        ",", "14", ",", "14", ",", "36", ",", "20", ",", "22", ",", "5", ",", 
+        "7"}], "}"}]}], ",", 
+     RowBox[{"evalCounts", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "180", ",", "60", ",", "240", ",", "600", ",", "600", ",", "180", ",", 
+        "120", ",", "168", ",", "168", ",", "432", ",", "240", ",", "264", 
+        ",", "60", ",", "84"}], "}"}]}], ",", 
+     RowBox[{"wallClockTimes", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "30.06000018119812`", ",", "10.140000104904175`", ",", 
+        "39.200000047683716`", ",", "95.25999999046326`", ",", 
+        "101.12000012397766`", ",", "32.919999837875366`", ",", 
+        "19.390000104904175`", ",", "27.299999952316284`", ",", 
+        "27.490000009536743`", ",", "68.60999989509583`", ",", 
+        "39.1800000667572`", ",", "41.72000002861023`", ",", 
+        "10.230000019073486`", ",", "14.740000009536743`"}], "}"}]}], ",", 
+     RowBox[{"success", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "1.`", ",", "1.`", ",", "1.`", ",", "0.`", ",", "0.`", ",", "1.`", ",",
+         "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", 
+        ",", "1.`", ",", "1.`"}], "}"}]}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"genCounts", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "28", ",", "24", ",", "7", ",", "8", ",", "10", ",", "18", ",", "1", 
+        ",", "1", ",", "18", ",", "13", ",", "36", ",", "27", ",", "27", ",", 
+        "36"}], "}"}]}], ",", 
+     RowBox[{"evalCounts", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "336", ",", "288", ",", "84", ",", "96", ",", "120", ",", "216", ",", 
+        "12", ",", "12", ",", "216", ",", "156", ",", "432", ",", "324", ",", 
+        "324", ",", "432"}], "}"}]}], ",", 
+     RowBox[{"wallClockTimes", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "86.04999995231628`", ",", "59.12999987602234`", ",", 
+        "16.569999933242798`", ",", "18.59999990463257`", ",", 
+        "23.539999961853027`", ",", "48.12999987602234`", ",", 
+        "2.809999942779541`", ",", "2.7099997997283936`", ",", 
+        "43.25999999046326`", ",", "32.66000008583069`", ",", 
+        "88.23000001907349`", ",", "60.28999996185303`", ",", 
+        "66.55999994277954`", ",", "84.45000004768372`"}], "}"}]}], ",", 
+     RowBox[{"success", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",",
+         "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", 
+        ",", "1.`", ",", "1.`"}], "}"}]}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"genCounts", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "1", ",", "1", ",", "5", ",", "1", ",", "1", ",", "1", ",", "1", ",", 
+        "1", ",", "1", ",", "1", ",", "1", ",", "1"}], "}"}]}], ",", 
+     RowBox[{"evalCounts", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "12", ",", "12", ",", "60", ",", "12", ",", "12", ",", "12", ",", "12",
+         ",", "12", ",", "12", ",", "12", ",", "12", ",", "12"}], "}"}]}], 
+     ",", 
+     RowBox[{"wallClockTimes", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "4.919999837875366`", ",", "5.25`", ",", "23.210000038146973`", ",", 
+        "4.990000009536743`", ",", "5.06000018119812`", ",", 
+        "5.019999980926514`", ",", "5.110000133514404`", ",", 
+        "5.049999952316284`", ",", "5.`", ",", "5.159999847412109`", ",", 
+        "4.990000009536743`", ",", "4.9700000286102295`"}], "}"}]}], ",", 
+     RowBox[{"success", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{
+       "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",",
+         "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`", ",", "1.`"}], 
+       "}"}]}]}], "}"}]}], "}"}]], "Output",
+ CellChangeTimes->{3.585519870254294*^9, 3.585519922973084*^9, 
+  3.586698188822934*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"show", "[", 
+  RowBox[{"lists", ",", " ", "genCounts"}], "]"}]], "Input",
+ CellChangeTimes->{{3.5855181734844*^9, 3.585518184188717*^9}, {
+  3.585518390216093*^9, 3.585518395293495*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, 
+   {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+    PointBox[{{1., 18.65}, {2., 22.45}, {3., 
+     2.3684210526315788`}}], {{
+      LineBox[{{1., 21.768936222158885`}, {1., 15.531063777841114`}}], 
+      LineBox[{Offset[{1.5, 0}, {1., 21.768936222158885`}], 
+        Offset[{-1.5, 0}, {1., 21.768936222158885`}]}], 
+      LineBox[{Offset[{1.5, 0}, {1., 15.531063777841114`}], 
+        Offset[{-1.5, 0}, {1., 15.531063777841114`}]}]}, {
+      LineBox[{{2., 25.064207135513254`}, {2., 19.835792864486745`}}], 
+      LineBox[{Offset[{1.5, 0}, {2., 25.064207135513254`}], 
+        Offset[{-1.5, 0}, {2., 25.064207135513254`}]}], 
+      LineBox[{Offset[{1.5, 0}, {2., 19.835792864486745`}], 
+        Offset[{-1.5, 0}, {2., 19.835792864486745`}]}]}, {
+      LineBox[{{3., 3.0046127847182014`}, {3., 1.7322293205449562`}}], 
+      LineBox[{Offset[{1.5, 0}, {3., 3.0046127847182014`}], 
+        Offset[{-1.5, 0}, {3., 3.0046127847182014`}]}], 
+      LineBox[{Offset[{1.5, 0}, {3., 1.7322293205449562`}], 
+        Offset[{-1.5, 0}, {3., 1.7322293205449562`}]}]}}}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->True,
+  AxesLabel->{None, None},
+  AxesOrigin->{0, 0},
+  Method->{},
+  PlotRangeClipping->True]], "Output",
+ CellChangeTimes->{{3.585518184772686*^9, 3.585518237151669*^9}, 
+   3.585518280013158*^9, 3.585518357844276*^9, 3.585518395659237*^9, 
+   3.586698189006772*^9, 3.586698238223948*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"show", "[", 
+   RowBox[{"lists_", ",", " ", "key_", ",", " ", 
+    RowBox[{"opts", ":", 
+     RowBox[{"OptionsPattern", "[", "]"}]}]}], "]"}], " ", ":=", " ", 
+  RowBox[{"ErrorListPlot", "[", 
+   RowBox[{
+    RowBox[{"meanAndDev", "[", 
+     RowBox[{"lists", ",", " ", "key"}], "]"}], ",", " ", 
+    RowBox[{"AxesOrigin", " ", "\[Rule]", " ", 
+     RowBox[{"{", 
+      RowBox[{".8", ",", " ", "0"}], "}"}]}], ",", "opts", ",", 
+    RowBox[{"PlotRange", "\[Rule]", "Full"}], ",", 
+    RowBox[{"(*", 
+     RowBox[{
+      RowBox[{"PlotRange", " ", "\[Rule]", " ", 
+       RowBox[{"{", 
+        RowBox[{"Automatic", ",", " ", 
+         RowBox[{"{", 
+          RowBox[{"0", ",", " ", "50"}], "}"}]}], "}"}]}], ","}], " ", "*)"}], 
+    RowBox[{"AxesLabel", " ", "\[Rule]", " ", 
+     RowBox[{"{", 
+      RowBox[{"\"\<Physics/Vehicle\>\"", ",", " ", "key"}], "}"}]}], ",", " ", 
+    RowBox[{"Ticks", " ", "\[Rule]", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"Transpose", "[", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"1", ",", "2", ",", "3"}], "}"}], ",", 
+          RowBox[{"{", 
+           RowBox[{
+           "\"\<FODE\>\"", ",", " ", "\"\<Bullet\>\"", ",", " ", 
+            "\"\<FODE->Bullet\>\""}], "}"}]}], "}"}], "]"}], ",", " ", 
+       "Automatic"}], "}"}]}], ",", " ", 
+    RowBox[{"Joined", " ", "\[Rule]", " ", "True"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.585518383040732*^9, 3.585518440289144*^9}, {
+  3.585518616954401*^9, 3.58551886816952*^9}, {3.585518899357513*^9, 
+  3.585518923405664*^9}, {3.58551896121025*^9, 3.585518986792677*^9}, {
+  3.5855190234933767`*^9, 3.585519041446246*^9}, {3.585519098846073*^9, 
+  3.585519126120634*^9}, {3.585521358756196*^9, 3.585521360918338*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"checkSignificance", "[", 
+   RowBox[{"lists_", ",", " ", "key_"}], "]"}], " ", ":=", " ", 
+  RowBox[{"TableForm", "[", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"\"\<FODE vs. Bullet\>\"", ",", " ", 
+       RowBox[{"MannWhitneyTest", "[", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"key", " ", "/.", " ", 
+           RowBox[{"lists", "[", 
+            RowBox[{"[", "1", "]"}], "]"}]}], " ", ",", " ", 
+          RowBox[{"key", " ", "/.", " ", 
+           RowBox[{"lists", "[", 
+            RowBox[{"[", "2", "]"}], "]"}]}]}], "}"}], "]"}]}], "}"}], ",", 
+     "\[IndentingNewLine]", 
+     RowBox[{"{", 
+      RowBox[{"\"\<Bullet vs FODE -> Bullet\>\"", ",", " ", 
+       RowBox[{"MannWhitneyTest", "[", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"Pick", "[", 
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{"key", " ", "/.", " ", 
+               RowBox[{"lists", "[", 
+                RowBox[{"[", "1", "]"}], "]"}]}], ")"}], ",", " ", 
+             RowBox[{"Map", "[", 
+              RowBox[{"IntegerPart", ",", 
+               RowBox[{"success", " ", "/.", " ", 
+                RowBox[{"lists", "[", 
+                 RowBox[{"[", "1", "]"}], "]"}]}]}], "]"}], ",", " ", "1"}], 
+            " ", "]"}], " ", "+", " ", 
+           RowBox[{"(", 
+            RowBox[{"key", " ", "/.", " ", 
+             RowBox[{"lists", "[", 
+              RowBox[{"[", "3", "]"}], "]"}]}], ")"}]}], " ", ",", " ", 
+          RowBox[{"key", " ", "/.", " ", 
+           RowBox[{"lists", "[", 
+            RowBox[{"[", "2", "]"}], "]"}]}]}], "}"}], "]"}]}], "}"}]}], 
+    "}"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.586698369577611*^9, 3.586698429747355*^9}, {
+   3.586698531507184*^9, 3.586698724028797*^9}, {3.586698835082315*^9, 
+   3.586698859264296*^9}, {3.5866988992411413`*^9, 3.586698906415085*^9}, 
+   3.5866990249012413`*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"checkSignificance", "[", 
+  RowBox[{"lists", ",", " ", "genCounts"}], "]"}]], "Input",
+ CellChangeTimes->{{3.586698431341002*^9, 3.586698437851585*^9}}],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"FODE vs. Bullet\"\>", "0.21821107813781473`"},
+    {"\<\"Bullet vs FODE -> Bullet\"\>", "0.30480446477757556`"}
+   },
+   GridBoxAlignment->{
+    "Columns" -> {{Left}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+     "RowsIndexed" -> {}},
+   GridBoxSpacings->{"Columns" -> {
+       Offset[0.27999999999999997`], {
+        Offset[2.0999999999999996`]}, 
+       Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+       Offset[0.2], {
+        Offset[0.4]}, 
+       Offset[0.2]}, "RowsIndexed" -> {}}],
+  Function[BoxForm`e$, 
+   TableForm[BoxForm`e$]]]], "Output",
+ CellChangeTimes->{
+  3.5866984383413277`*^9, {3.5866986399254713`*^9, 3.5866986578618937`*^9}, 
+   3.5866987298462553`*^9, 3.586698866703651*^9, 3.586698913503068*^9, 
+   3.5866990472630253`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"checkSignificance", "[", 
+  RowBox[{"lists", ",", " ", "evalCounts"}], "]"}]], "Input",
+ CellChangeTimes->{{3.586698431341002*^9, 3.586698437851585*^9}, {
+  3.5866987351716423`*^9, 3.586698744274255*^9}}],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"FODE vs. Bullet\"\>", "0.21821107813781473`"},
+    {"\<\"Bullet vs FODE -> Bullet\"\>", "0.30480446477757556`"}
+   },
+   GridBoxAlignment->{
+    "Columns" -> {{Left}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+     "RowsIndexed" -> {}},
+   GridBoxSpacings->{"Columns" -> {
+       Offset[0.27999999999999997`], {
+        Offset[2.0999999999999996`]}, 
+       Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+       Offset[0.2], {
+        Offset[0.4]}, 
+       Offset[0.2]}, "RowsIndexed" -> {}}],
+  Function[BoxForm`e$, 
+   TableForm[BoxForm`e$]]]], "Output",
+ CellChangeTimes->{3.586698744754381*^9, 3.586698917636496*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"checkSignificance", "[", 
+  RowBox[{"lists", ",", " ", "wallClockTimes"}], "]"}]], "Input",
+ CellChangeTimes->{{3.586698431341002*^9, 3.586698437851585*^9}, {
+  3.5866987351716423`*^9, 3.586698744274255*^9}, {3.586698921309804*^9, 
+  3.5866989302284*^9}}],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {"\<\"FODE vs. Bullet\"\>", "0.022269911309813137`"},
+    {"\<\"Bullet vs FODE -> Bullet\"\>", "0.1819959085278635`"}
+   },
+   GridBoxAlignment->{
+    "Columns" -> {{Left}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+     "RowsIndexed" -> {}},
+   GridBoxSpacings->{"Columns" -> {
+       Offset[0.27999999999999997`], {
+        Offset[2.0999999999999996`]}, 
+       Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+       Offset[0.2], {
+        Offset[0.4]}, 
+       Offset[0.2]}, "RowsIndexed" -> {}}],
+  Function[BoxForm`e$, 
+   TableForm[BoxForm`e$]]]], "Output",
+ CellChangeTimes->{3.586698930618606*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"show", "[", 
+  RowBox[{"lists", ",", "genCounts", ",", " ", 
+   RowBox[{"PlotRange", " ", "\[Rule]", " ", 
+    RowBox[{"{", 
+     RowBox[{"Automatic", ",", 
+      RowBox[{"{", 
+       RowBox[{"0", ",", " ", "50"}], "}"}]}], "}"}]}], ",", " ", 
+   RowBox[{"AxesLabel", " ", "\[Rule]", " ", 
+    RowBox[{"{", 
+     RowBox[{
+     "\"\<Physics/Vehicle\>\"", ",", " ", "\"\<generation count\>\""}], 
+     "}"}]}]}], " ", "]"}]], "Input",
+ CellChangeTimes->{{3.585518926010446*^9, 3.585518930529646*^9}, {
+  3.585519133805187*^9, 3.5855191445543613`*^9}, {3.585519244506081*^9, 
+  3.5855192538099546`*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, 
+   {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+    LineBox[{{1., 18.65}, {2., 22.45}, {3., 
+     2.3684210526315788`}}], {{
+      LineBox[{{1., 21.768936222158885`}, {1., 15.531063777841114`}}], 
+      LineBox[{Offset[{1.5, 0}, {1., 21.768936222158885`}], 
+        Offset[{-1.5, 0}, {1., 21.768936222158885`}]}], 
+      LineBox[{Offset[{1.5, 0}, {1., 15.531063777841114`}], 
+        Offset[{-1.5, 0}, {1., 15.531063777841114`}]}]}, {
+      LineBox[{{2., 25.064207135513254`}, {2., 19.835792864486745`}}], 
+      LineBox[{Offset[{1.5, 0}, {2., 25.064207135513254`}], 
+        Offset[{-1.5, 0}, {2., 25.064207135513254`}]}], 
+      LineBox[{Offset[{1.5, 0}, {2., 19.835792864486745`}], 
+        Offset[{-1.5, 0}, {2., 19.835792864486745`}]}]}, {
+      LineBox[{{3., 3.0046127847182014`}, {3., 1.7322293205449562`}}], 
+      LineBox[{Offset[{1.5, 0}, {3., 3.0046127847182014`}], 
+        Offset[{-1.5, 0}, {3., 3.0046127847182014`}]}], 
+      LineBox[{Offset[{1.5, 0}, {3., 1.7322293205449562`}], 
+        Offset[{-1.5, 0}, {3., 1.7322293205449562`}]}]}}}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->True,
+  AxesLabel->{
+    FormBox["\"Physics/Vehicle\"", TraditionalForm], 
+    FormBox["\"generation count\"", TraditionalForm]},
+  AxesOrigin->{0.8, 0},
+  Method->{},
+  PlotRange->{{0.8, 3.}, {0, 50}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{0.044000000000000004`, 0.044000000000000004`}, {0., 0.}},
+  Ticks->{{{1, 
+      FormBox["\"FODE\"", TraditionalForm]}, {2, 
+      FormBox["\"Bullet\"", TraditionalForm]}, {3, 
+      FormBox["\"FODE->Bullet\"", TraditionalForm]}}, Automatic}]], "Output",
+ CellChangeTimes->{3.586698189675682*^9, 3.5866982411060953`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"show", "[", 
+  RowBox[{"lists", ",", "evalCounts", ",", " ", 
+   RowBox[{"PlotRange", " ", "\[Rule]", " ", 
+    RowBox[{"{", 
+     RowBox[{"Automatic", ",", " ", 
+      RowBox[{"{", 
+       RowBox[{"0", ",", " ", "500"}], "}"}]}], "}"}]}], ",", " ", 
+   RowBox[{"AxesLabel", " ", "\[Rule]", " ", 
+    RowBox[{"{", 
+     RowBox[{
+     "\"\<Physics/Vehicle\>\"", ",", " ", "\"\<evaluation count\>\""}], 
+     "}"}]}]}], " ", "]"}]], "Input",
+ CellChangeTimes->{{3.585518926010446*^9, 3.5855189512922287`*^9}, {
+  3.585519149279476*^9, 3.585519164330408*^9}, {3.5855192569429417`*^9, 
+  3.585519263417746*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, 
+   {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+    LineBox[{{1., 223.8}, {2., 269.4}, {3., 
+     28.42105263157895}}], {{
+      LineBox[{{1., 261.2272346659066}, {1., 186.3727653340934}}], 
+      LineBox[{Offset[{1.5, 0}, {1., 261.2272346659066}], 
+        Offset[{-1.5, 0}, {1., 261.2272346659066}]}], 
+      LineBox[{Offset[{1.5, 0}, {1., 186.3727653340934}], 
+        Offset[{-1.5, 0}, {1., 186.3727653340934}]}]}, {
+      LineBox[{{2., 300.77048562615903`}, {2., 238.02951437384093`}}], 
+      LineBox[{Offset[{1.5, 0}, {2., 300.77048562615903`}], 
+        Offset[{-1.5, 0}, {2., 300.77048562615903`}]}], 
+      LineBox[{Offset[{1.5, 0}, {2., 238.02951437384093`}], 
+        Offset[{-1.5, 0}, {2., 238.02951437384093`}]}]}, {
+      LineBox[{{3., 36.055353416618416`}, {3., 20.786751846539477`}}], 
+      LineBox[{Offset[{1.5, 0}, {3., 36.055353416618416`}], 
+        Offset[{-1.5, 0}, {3., 36.055353416618416`}]}], 
+      LineBox[{Offset[{1.5, 0}, {3., 20.786751846539477`}], 
+        Offset[{-1.5, 0}, {3., 20.786751846539477`}]}]}}}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->True,
+  AxesLabel->{
+    FormBox["\"Physics/Vehicle\"", TraditionalForm], 
+    FormBox["\"evaluation count\"", TraditionalForm]},
+  AxesOrigin->{0.8, 0},
+  Method->{},
+  PlotRange->{{0.8, 3.}, {0, 500}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{0.044000000000000004`, 0.044000000000000004`}, {0., 0.}},
+  Ticks->{{{1, 
+      FormBox["\"FODE\"", TraditionalForm]}, {2, 
+      FormBox["\"Bullet\"", TraditionalForm]}, {3, 
+      FormBox["\"FODE->Bullet\"", TraditionalForm]}}, Automatic}]], "Output",
+ CellChangeTimes->{3.5866981897066307`*^9, 3.586698242876821*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"show", "[", 
+  RowBox[{"lists", ",", "wallClockTimes", ",", " ", 
+   RowBox[{"PlotRange", " ", "\[Rule]", " ", 
+    RowBox[{"{", 
+     RowBox[{"Automatic", ",", " ", 
+      RowBox[{"{", 
+       RowBox[{"0", ",", " ", "100"}], "}"}]}], "}"}]}], ",", " ", 
+   RowBox[{"AxesLabel", " ", "\[Rule]", " ", 
+    RowBox[{"{", 
+     RowBox[{
+     "\"\<Physics/Vehicle\>\"", ",", "  ", "\"\<wall clock time\>\""}], 
+     "}"}]}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.585518926010446*^9, 3.5855189512922287`*^9}, {
+  3.585519149279476*^9, 3.585519179929562*^9}, {3.585519269930399*^9, 
+  3.585519277655828*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, 
+   {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+    LineBox[{{1., 35.1865000128746}, {2., 52.93349997997284}, {3., 
+     11.2173683894308}}], {{
+      LineBox[{{1., 40.93432029238833}, {1., 29.43867973336088}}], 
+      LineBox[{Offset[{1.5, 0}, {1., 40.93432029238833}], 
+        Offset[{-1.5, 0}, {1., 40.93432029238833}]}], 
+      LineBox[{Offset[{1.5, 0}, {1., 29.43867973336088}], 
+        Offset[{-1.5, 0}, {1., 29.43867973336088}]}]}, {
+      LineBox[{{2., 59.18447073599018}, {2., 46.68252922395549}}], 
+      LineBox[{Offset[{1.5, 0}, {2., 59.18447073599018}], 
+        Offset[{-1.5, 0}, {2., 59.18447073599018}]}], 
+      LineBox[{Offset[{1.5, 0}, {2., 46.68252922395549}], 
+        Offset[{-1.5, 0}, {2., 46.68252922395549}]}]}, {
+      LineBox[{{3., 14.06466318104713}, {3., 8.370073597814468}}], 
+      LineBox[{Offset[{1.5, 0}, {3., 14.06466318104713}], 
+        Offset[{-1.5, 0}, {3., 14.06466318104713}]}], 
+      LineBox[{Offset[{1.5, 0}, {3., 8.370073597814468}], 
+        Offset[{-1.5, 0}, {3., 8.370073597814468}]}]}}}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->True,
+  AxesLabel->{
+    FormBox["\"Physics/Vehicle\"", TraditionalForm], 
+    FormBox["\"wall clock time\"", TraditionalForm]},
+  AxesOrigin->{0.8, 0},
+  Method->{},
+  PlotRange->{{0.8, 3.}, {0, 100}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{0.044000000000000004`, 0.044000000000000004`}, {0., 0.}},
+  Ticks->{{{1, 
+      FormBox["\"FODE\"", TraditionalForm]}, {2, 
+      FormBox["\"Bullet\"", TraditionalForm]}, {3, 
+      FormBox["\"FODE->Bullet\"", TraditionalForm]}}, Automatic}]], "Output",
+ CellChangeTimes->{3.5866981897389393`*^9, 3.586698246611986*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"show", "[", 
+  RowBox[{"lists", ",", "success", ",", " ", 
+   RowBox[{"PlotRange", " ", "\[Rule]", " ", 
+    RowBox[{"{", 
+     RowBox[{"Automatic", ",", " ", 
+      RowBox[{"{", 
+       RowBox[{"0", ",", " ", "1.3"}], "}"}]}], "}"}]}], ",", " ", 
+   RowBox[{"AxesLabel", " ", "\[Rule]", " ", 
+    RowBox[{"{", 
+     RowBox[{
+     "\"\<Physics/Vehicle\>\"", ",", " ", "\"\<proportion of success\>\""}], 
+     "}"}]}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.585518926010446*^9, 3.5855189512922287`*^9}, {
+  3.585519149279476*^9, 3.585519211729477*^9}, {3.5855192835307083`*^9, 
+  3.58551929873139*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, 
+   {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+    LineBox[{{1., 0.95}, {2., 1.}, {3., 
+     1.}}], {{LineBox[{{1., 1.}, {1., 0.8999999999999999}}], 
+      LineBox[{Offset[{1.5, 0}, {1., 1.}], Offset[{-1.5, 0}, {1., 1.}]}], 
+      LineBox[{Offset[{1.5, 0}, {1., 0.8999999999999999}], 
+        Offset[{-1.5, 0}, {1., 0.8999999999999999}]}]}, {
+      LineBox[{{2., 1.}, {2., 1.}}], 
+      LineBox[{Offset[{1.5, 0}, {2., 1.}], Offset[{-1.5, 0}, {2., 1.}]}], 
+      LineBox[{Offset[{1.5, 0}, {2., 1.}], Offset[{-1.5, 0}, {2., 1.}]}]}, {
+      LineBox[{{3., 1.}, {3., 1.}}], 
+      LineBox[{Offset[{1.5, 0}, {3., 1.}], Offset[{-1.5, 0}, {3., 1.}]}], 
+      LineBox[{Offset[{1.5, 0}, {3., 1.}], 
+        Offset[{-1.5, 0}, {3., 1.}]}]}}}, {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->True,
+  AxesLabel->{
+    FormBox["\"Physics/Vehicle\"", TraditionalForm], 
+    FormBox["\"proportion of success\"", TraditionalForm]},
+  AxesOrigin->{0.8, 0},
+  Method->{},
+  PlotRange->{{0.8, 3.}, {0, 1.3}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{0.044000000000000004`, 0.044000000000000004`}, {0., 0.}},
+  Ticks->{{{1, 
+      FormBox["\"FODE\"", TraditionalForm]}, {2, 
+      FormBox["\"Bullet\"", TraditionalForm]}, {3, 
+      FormBox["\"FODE->Bullet\"", TraditionalForm]}}, Automatic}]], "Output",
+ CellChangeTimes->{3.586698189772524*^9, 3.586698244747712*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"showAll", "[", "lists_", "]"}], " ", ":=", " ", 
+   RowBox[{"GraphicsGrid", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"show", "[", 
+         RowBox[{"lists", ",", "genCounts", ",", " ", 
+          RowBox[{"PlotRange", " ", "\[Rule]", " ", 
+           RowBox[{"{", 
+            RowBox[{"Automatic", ",", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", " ", "50"}], "}"}]}], "}"}]}], ",", " ", 
+          RowBox[{"AxesLabel", " ", "\[Rule]", " ", 
+           RowBox[{"{", 
+            RowBox[{
+            "\"\<Physics/Vehicle\>\"", ",", " ", "\"\<generation count\>\""}],
+             "}"}]}]}], " ", "]"}], ",", "\[IndentingNewLine]", 
+        RowBox[{"show", "[", 
+         RowBox[{"lists", ",", "evalCounts", ",", " ", 
+          RowBox[{"PlotRange", " ", "\[Rule]", " ", 
+           RowBox[{"{", 
+            RowBox[{"Automatic", ",", " ", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", " ", "500"}], "}"}]}], "}"}]}], ",", " ", 
+          RowBox[{"AxesLabel", " ", "\[Rule]", " ", 
+           RowBox[{"{", 
+            RowBox[{
+            "\"\<Physics/Vehicle\>\"", ",", " ", "\"\<evaluation count\>\""}],
+             "}"}]}]}], " ", "]"}]}], "}"}], ",", "\[IndentingNewLine]", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"show", "[", 
+         RowBox[{"lists", ",", "wallClockTimes", ",", " ", 
+          RowBox[{"PlotRange", " ", "\[Rule]", " ", 
+           RowBox[{"{", 
+            RowBox[{"Automatic", ",", " ", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", " ", "100"}], "}"}]}], "}"}]}], ",", " ", 
+          RowBox[{"AxesLabel", " ", "\[Rule]", " ", 
+           RowBox[{"{", 
+            RowBox[{
+            "\"\<Physics/Vehicle\>\"", ",", "  ", "\"\<wall clock time\>\""}],
+             "}"}]}]}], "]"}], ",", "\[IndentingNewLine]", 
+        RowBox[{"show", "[", 
+         RowBox[{"lists", ",", "success", ",", " ", 
+          RowBox[{"PlotRange", " ", "\[Rule]", " ", 
+           RowBox[{"{", 
+            RowBox[{"Automatic", ",", " ", 
+             RowBox[{"{", 
+              RowBox[{"0", ",", " ", "1.3"}], "}"}]}], "}"}]}], ",", " ", 
+          RowBox[{"AxesLabel", " ", "\[Rule]", " ", 
+           RowBox[{"{", 
+            RowBox[{
+            "\"\<Physics/Vehicle\>\"", ",", " ", 
+             "\"\<proportion of success\>\""}], "}"}]}]}], "]"}]}], "}"}]}], 
+     "}"}], "]"}]}], "\[IndentingNewLine]"}]], "Input",
+ CellChangeTimes->{{3.585519316704301*^9, 3.585519389948907*^9}, 
+   3.585519934227501*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"showAll", "[", "lists", "]"}]], "Input",
+ CellChangeTimes->{{3.585519378586212*^9, 3.585519380369259*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {{InsetBox[
+      GraphicsBox[{{}, 
+        {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+         LineBox[{{1., 18.65}, {2., 22.45}, {3., 
+          2.3684210526315788`}}], {{
+           LineBox[{{1., 21.768936222158885`}, {1., 15.531063777841114`}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 21.768936222158885`}], 
+             Offset[{-1.5, 0}, {1., 21.768936222158885`}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 15.531063777841114`}], 
+             Offset[{-1.5, 0}, {1., 15.531063777841114`}]}]}, {
+           LineBox[{{2., 25.064207135513254`}, {2., 19.835792864486745`}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {2., 25.064207135513254`}], 
+             Offset[{-1.5, 0}, {2., 25.064207135513254`}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {2., 19.835792864486745`}], 
+             Offset[{-1.5, 0}, {2., 19.835792864486745`}]}]}, {
+           LineBox[{{3., 3.0046127847182014`}, {3., 1.7322293205449562`}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {3., 3.0046127847182014`}], 
+             Offset[{-1.5, 0}, {3., 3.0046127847182014`}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {3., 1.7322293205449562`}], 
+             Offset[{-1.5, 0}, {3., 1.7322293205449562`}]}]}}}, {}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesLabel->{
+         FormBox["\"Physics/Vehicle\"", TraditionalForm], 
+         FormBox["\"generation count\"", TraditionalForm]},
+       AxesOrigin->{0.8, 0},
+       Method->{},
+       PlotRange->{{0.8, 3.}, {0, 50}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{{0.044000000000000004`, 0.044000000000000004`}, {0.,
+         0.}},
+       Ticks->{{{1, 
+           FormBox["\"FODE\"", TraditionalForm]}, {2, 
+           FormBox["\"Bullet\"", TraditionalForm]}, {3, 
+           FormBox["\"FODE->Bullet\"", TraditionalForm]}}, Automatic}], {192., -118.66252583997979`},
+       ImageScaled[{0.5, 0.5}], {360., 222.4922359499621}], InsetBox[
+      GraphicsBox[{{}, 
+        {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+         LineBox[{{1., 223.8}, {2., 269.4}, {3., 
+          28.42105263157895}}], {{
+           LineBox[{{1., 261.2272346659066}, {1., 186.3727653340934}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 261.2272346659066}], 
+             Offset[{-1.5, 0}, {1., 261.2272346659066}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 186.3727653340934}], 
+             Offset[{-1.5, 0}, {1., 186.3727653340934}]}]}, {
+           LineBox[{{2., 300.77048562615903`}, {2., 238.02951437384093`}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {2., 300.77048562615903`}], 
+             Offset[{-1.5, 0}, {2., 300.77048562615903`}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {2., 238.02951437384093`}], 
+             Offset[{-1.5, 0}, {2., 238.02951437384093`}]}]}, {
+           LineBox[{{3., 36.055353416618416`}, {3., 20.786751846539477`}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {3., 36.055353416618416`}], 
+             Offset[{-1.5, 0}, {3., 36.055353416618416`}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {3., 20.786751846539477`}], 
+             Offset[{-1.5, 0}, {3., 20.786751846539477`}]}]}}}, {}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesLabel->{
+         FormBox["\"Physics/Vehicle\"", TraditionalForm], 
+         FormBox["\"evaluation count\"", TraditionalForm]},
+       AxesOrigin->{0.8, 0},
+       Method->{},
+       PlotRange->{{0.8, 3.}, {0, 500}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{{0.044000000000000004`, 0.044000000000000004`}, {0.,
+         0.}},
+       Ticks->{{{1, 
+           FormBox["\"FODE\"", TraditionalForm]}, {2, 
+           FormBox["\"Bullet\"", TraditionalForm]}, {3, 
+           FormBox["\"FODE->Bullet\"", TraditionalForm]}}, Automatic}], {576., -118.66252583997979`},
+       ImageScaled[{0.5, 0.5}], {360., 222.4922359499621}]}, {InsetBox[
+      GraphicsBox[{{}, 
+        {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+         LineBox[{{1., 35.1865000128746}, {2., 52.93349997997284}, {3., 
+          11.2173683894308}}], {{
+           LineBox[{{1., 40.93432029238833}, {1., 29.43867973336088}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 40.93432029238833}], 
+             Offset[{-1.5, 0}, {1., 40.93432029238833}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 29.43867973336088}], 
+             Offset[{-1.5, 0}, {1., 29.43867973336088}]}]}, {
+           LineBox[{{2., 59.18447073599018}, {2., 46.68252922395549}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {2., 59.18447073599018}], 
+             Offset[{-1.5, 0}, {2., 59.18447073599018}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {2., 46.68252922395549}], 
+             Offset[{-1.5, 0}, {2., 46.68252922395549}]}]}, {
+           LineBox[{{3., 14.06466318104713}, {3., 8.370073597814468}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {3., 14.06466318104713}], 
+             Offset[{-1.5, 0}, {3., 14.06466318104713}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {3., 8.370073597814468}], 
+             Offset[{-1.5, 0}, {3., 8.370073597814468}]}]}}}, {}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesLabel->{
+         FormBox["\"Physics/Vehicle\"", TraditionalForm], 
+         FormBox["\"wall clock time\"", TraditionalForm]},
+       AxesOrigin->{0.8, 0},
+       Method->{},
+       PlotRange->{{0.8, 3.}, {0, 100}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{{0.044000000000000004`, 0.044000000000000004`}, {0.,
+         0.}},
+       Ticks->{{{1, 
+           FormBox["\"FODE\"", TraditionalForm]}, {2, 
+           FormBox["\"Bullet\"", TraditionalForm]}, {3, 
+           FormBox["\"FODE->Bullet\"", TraditionalForm]}}, Automatic}], {192., -355.98757751993935`},
+       ImageScaled[{0.5, 0.5}], {360., 222.4922359499621}], InsetBox[
+      GraphicsBox[{{}, 
+        {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+         LineBox[{{1., 0.95}, {2., 1.}, {3., 
+          1.}}], {{LineBox[{{1., 1.}, {1., 0.8999999999999999}}], 
+           LineBox[{Offset[{1.5, 0}, {1., 1.}], Offset[{-1.5, 0}, {1., 1.}]}],
+            LineBox[{
+            Offset[{1.5, 0}, {1., 0.8999999999999999}], 
+             Offset[{-1.5, 0}, {1., 0.8999999999999999}]}]}, {
+           LineBox[{{2., 1.}, {2., 1.}}], 
+           LineBox[{Offset[{1.5, 0}, {2., 1.}], Offset[{-1.5, 0}, {2., 1.}]}],
+            LineBox[{
+            Offset[{1.5, 0}, {2., 1.}], Offset[{-1.5, 0}, {2., 1.}]}]}, {
+           LineBox[{{3., 1.}, {3., 1.}}], 
+           LineBox[{Offset[{1.5, 0}, {3., 1.}], Offset[{-1.5, 0}, {3., 1.}]}],
+            LineBox[{
+            Offset[{1.5, 0}, {3., 1.}], Offset[{-1.5, 0}, {3., 1.}]}]}}}, {}},
+       
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesLabel->{
+         FormBox["\"Physics/Vehicle\"", TraditionalForm], 
+         FormBox["\"proportion of success\"", TraditionalForm]},
+       AxesOrigin->{0.8, 0},
+       Method->{},
+       PlotRange->{{0.8, 3.}, {0, 1.3}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{{0.044000000000000004`, 0.044000000000000004`}, {0.,
+         0.}},
+       Ticks->{{{1, 
+           FormBox["\"FODE\"", TraditionalForm]}, {2, 
+           FormBox["\"Bullet\"", TraditionalForm]}, {3, 
+           FormBox["\"FODE->Bullet\"", TraditionalForm]}}, Automatic}], {576., -355.98757751993935`},
+       ImageScaled[{0.5, 0.5}], {360., 222.4922359499621}]}}, {}},
+  ContentSelectable->True,
+  ImageSize->{830.63671875, Automatic},
+  PlotRangePadding->{6, 5}]], "Output",
+ CellChangeTimes->{{3.5855193808803377`*^9, 3.585519393383642*^9}, 
+   3.5855211510480137`*^9, {3.585521234335164*^9, 3.5855212370738173`*^9}, 
+   3.5855212915256653`*^9, 3.585521364510427*^9, 3.5866981898806887`*^9, 
+   3.586698250331023*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Export", "[", 
+  RowBox[{"\"\<results.pdf\>\"", ",", "%", ",", "\"\<PDF\>\"", ",", " ", 
+   RowBox[{"ImageSize", " ", "\[Rule]", " ", 
+    RowBox[{"72", " ", 
+     RowBox[{"{", 
+      RowBox[{"7", ",", " ", "7"}], "}"}]}]}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.585521398324994*^9, 3.5855214293544483`*^9}, {
+  3.586698265336163*^9, 3.586698265511739*^9}},
+ NumberMarks->False],
+
+Cell[BoxData["\<\"results.pdf\"\>"], "Output",
+ CellChangeTimes->{
+  3.585521381180009*^9, {3.585521418445244*^9, 3.585521430495929*^9}, 
+   3.586698190329774*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{"SystemOpen", "[", "\"\<results.pdf\>\"", "]"}]], "Input",
+ NumberMarks->False],
+
+Cell[BoxData[
+ RowBox[{"SystemOpen", "[", "\"\<results.pdf\>\"", "]"}]], "Input",
+ NumberMarks->False],
+
+Cell[BoxData[
+ RowBox[{"SystemOpen", "[", "\"\<results.pdf\>\"", "]"}]], "Input",
+ NumberMarks->False],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"showAll", "[", "lists1", "]"}]], "Input",
+ CellChangeTimes->{{3.585519378586212*^9, 3.585519380369259*^9}, {
+  3.585519874923559*^9, 3.585519877471389*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {{InsetBox[
+      GraphicsBox[{{}, 
+        {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+         LineBox[{{1., 20.214285714285715`}, {2., 18.142857142857142`}, {3., 
+          1.3333333333333333`}}], {{
+           LineBox[{{1., 24.206281237511767`}, {1., 16.222290191059663`}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 24.206281237511767`}], 
+             Offset[{-1.5, 0}, {1., 24.206281237511767`}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 16.222290191059663`}], 
+             Offset[{-1.5, 0}, {1., 16.222290191059663`}]}]}, {
+           LineBox[{{2., 21.31702683243115}, {2., 14.968687453283133`}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {2., 21.31702683243115}], 
+             Offset[{-1.5, 0}, {2., 21.31702683243115}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {2., 14.968687453283133`}], 
+             Offset[{-1.5, 0}, {2., 14.968687453283133`}]}]}, {
+           LineBox[{{3., 1.6666666666666665`}, {3., 1.}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {3., 1.6666666666666665`}], 
+             Offset[{-1.5, 0}, {3., 1.6666666666666665`}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {3., 1.}], Offset[{-1.5, 0}, {3., 1.}]}]}}}, {}},
+       
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesLabel->{
+         FormBox["\"Physics/Vehicle\"", TraditionalForm], 
+         FormBox["\"generation count\"", TraditionalForm]},
+       AxesOrigin->{0.8, 0},
+       Method->{},
+       PlotRange->{{0.8, 3.}, {0, 50}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{{0.044000000000000004`, 0.044000000000000004`}, {0.,
+         0.}},
+       Ticks->{{{1, 
+           FormBox["\"FODE\"", TraditionalForm]}, {2, 
+           FormBox["\"Bullet\"", TraditionalForm]}, {3, 
+           FormBox["\"FODE->Bullet\"", TraditionalForm]}}, Automatic}], {192., -118.66252583997979`},
+       ImageScaled[{0.5, 0.5}], {360., 222.4922359499621}], InsetBox[
+      GraphicsBox[{{}, 
+        {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+         LineBox[{{1., 242.57142857142858`}, {2., 217.71428571428572`}, {3., 
+          16.}}], {{
+           LineBox[{{1., 290.4753748501412}, {1., 194.667482292716}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 290.4753748501412}], 
+             Offset[{-1.5, 0}, {1., 290.4753748501412}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 194.667482292716}], 
+             Offset[{-1.5, 0}, {1., 194.667482292716}]}]}, {
+           LineBox[{{2., 255.80432198917384`}, {2., 179.6242494393976}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {2., 255.80432198917384`}], 
+             Offset[{-1.5, 0}, {2., 255.80432198917384`}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {2., 179.6242494393976}], 
+             Offset[{-1.5, 0}, {2., 179.6242494393976}]}]}, {
+           LineBox[{{3., 20.}, {3., 12.}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {3., 20.}], Offset[{-1.5, 0}, {3., 20.}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {3., 12.}], 
+             Offset[{-1.5, 0}, {3., 12.}]}]}}}, {}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesLabel->{
+         FormBox["\"Physics/Vehicle\"", TraditionalForm], 
+         FormBox["\"evaluation count\"", TraditionalForm]},
+       AxesOrigin->{0.8, 0},
+       Method->{},
+       PlotRange->{{0.8, 3.}, {0, 500}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{{0.044000000000000004`, 0.044000000000000004`}, {0.,
+         0.}},
+       Ticks->{{{1, 
+           FormBox["\"FODE\"", TraditionalForm]}, {2, 
+           FormBox["\"Bullet\"", TraditionalForm]}, {3, 
+           FormBox["\"FODE->Bullet\"", TraditionalForm]}}, Automatic}], {576., -118.66252583997979`},
+       ImageScaled[{0.5, 0.5}], {360., 222.4922359499621}]}, {InsetBox[
+      GraphicsBox[{{}, 
+        {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+         LineBox[{{1., 39.81142859799521}, {2., 45.21357137816293}, {3., 
+          6.5608333349227905`}}], {{
+           LineBox[{{1., 47.55706167005782}, {1., 32.0657955259326}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 47.55706167005782}], 
+             Offset[{-1.5, 0}, {1., 47.55706167005782}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 32.0657955259326}], 
+             Offset[{-1.5, 0}, {1., 32.0657955259326}]}]}, {
+           LineBox[{{2., 53.233865262183855`}, {2., 37.19327749414201}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {2., 53.233865262183855`}], 
+             Offset[{-1.5, 0}, {2., 53.233865262183855`}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {2., 37.19327749414201}], 
+             Offset[{-1.5, 0}, {2., 37.19327749414201}]}]}, {
+           LineBox[{{3., 8.074618208697286}, {3., 5.047048461148294}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {3., 8.074618208697286}], 
+             Offset[{-1.5, 0}, {3., 8.074618208697286}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {3., 5.047048461148294}], 
+             Offset[{-1.5, 0}, {3., 5.047048461148294}]}]}}}, {}},
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesLabel->{
+         FormBox["\"Physics/Vehicle\"", TraditionalForm], 
+         FormBox["\"wall clock time\"", TraditionalForm]},
+       AxesOrigin->{0.8, 0},
+       Method->{},
+       PlotRange->{{0.8, 3.}, {0, 100}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{{0.044000000000000004`, 0.044000000000000004`}, {0.,
+         0.}},
+       Ticks->{{{1, 
+           FormBox["\"FODE\"", TraditionalForm]}, {2, 
+           FormBox["\"Bullet\"", TraditionalForm]}, {3, 
+           FormBox["\"FODE->Bullet\"", TraditionalForm]}}, Automatic}], {192., -355.98757751993935`},
+       ImageScaled[{0.5, 0.5}], {360., 222.4922359499621}], InsetBox[
+      GraphicsBox[{{}, 
+        {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+         LineBox[{{1., 0.8571428571428571}, {2., 1.}, {3., 
+          1.}}], {{
+           LineBox[{{1., 0.954195174355251}, {1., 0.7600905399304632}}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 0.954195174355251}], 
+             Offset[{-1.5, 0}, {1., 0.954195174355251}]}], 
+           LineBox[{
+            Offset[{1.5, 0}, {1., 0.7600905399304632}], 
+             Offset[{-1.5, 0}, {1., 0.7600905399304632}]}]}, {
+           LineBox[{{2., 1.}, {2., 1.}}], 
+           LineBox[{Offset[{1.5, 0}, {2., 1.}], Offset[{-1.5, 0}, {2., 1.}]}],
+            LineBox[{
+            Offset[{1.5, 0}, {2., 1.}], Offset[{-1.5, 0}, {2., 1.}]}]}, {
+           LineBox[{{3., 1.}, {3., 1.}}], 
+           LineBox[{Offset[{1.5, 0}, {3., 1.}], Offset[{-1.5, 0}, {3., 1.}]}],
+            LineBox[{
+            Offset[{1.5, 0}, {3., 1.}], Offset[{-1.5, 0}, {3., 1.}]}]}}}, {}},
+       
+       AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+       Axes->True,
+       AxesLabel->{
+         FormBox["\"Physics/Vehicle\"", TraditionalForm], 
+         FormBox["\"proportion of success\"", TraditionalForm]},
+       AxesOrigin->{0.8, 0},
+       Method->{},
+       PlotRange->{{0.8, 3.}, {0, 1.3}},
+       PlotRangeClipping->True,
+       PlotRangePadding->{{0.044000000000000004`, 0.044000000000000004`}, {0.,
+         0.}},
+       Ticks->{{{1, 
+           FormBox["\"FODE\"", TraditionalForm]}, {2, 
+           FormBox["\"Bullet\"", TraditionalForm]}, {3, 
+           FormBox["\"FODE->Bullet\"", TraditionalForm]}}, Automatic}], {576., -355.98757751993935`},
+       ImageScaled[{0.5, 0.5}], {360., 222.4922359499621}]}}, {}},
+  ContentSelectable->True,
+  ImageSize->{952.22265625, Automatic},
+  PlotRangePadding->{6, 5}]], "Output",
+ CellChangeTimes->{
+  3.5855198779795847`*^9, {3.585519926926888*^9, 3.585519937204136*^9}, 
+   3.5866981910127277`*^9, 3.586698255337585*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Export", "[", 
+  RowBox[{"\"\<results.pdf\>\"", ",", " ", "%"}], "]"}]], "Input",
+ CellChangeTimes->{{3.585519419417495*^9, 3.5855194361549883`*^9}, {
+  3.5866982620099287`*^9, 3.586698262160748*^9}}],
+
+Cell[BoxData["\<\"results.pdf\"\>"], "Output",
+ CellChangeTimes->{3.585519437251718*^9, 3.5866981912388163`*^9}]
+}, Open  ]]
+},
+WindowSize->{1165, 834},
+WindowMargins->{{4, Automatic}, {Automatic, 4}},
+ShowSelection->True,
+FrontEndVersion->"9.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (November 20, \
+2012)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[557, 20, 167, 3, 28, "Input"],
+Cell[727, 25, 137, 2, 28, "Input"],
+Cell[867, 29, 241, 6, 28, "Input"],
+Cell[CellGroupData[{
+Cell[1133, 39, 186, 3, 28, "Input"],
+Cell[1322, 44, 1799, 37, 80, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3158, 86, 241, 4, 28, "Input"],
+Cell[3402, 92, 1810, 37, 80, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5249, 134, 187, 3, 28, "Input"],
+Cell[5439, 139, 1684, 35, 80, "Output"]
+}, Open  ]],
+Cell[7138, 177, 624, 17, 63, "Input"],
+Cell[7765, 196, 566, 15, 28, "Input"],
+Cell[8334, 213, 727, 17, 46, "Input"],
+Cell[CellGroupData[{
+Cell[9086, 234, 168, 3, 28, "Input"],
+Cell[9257, 239, 667, 23, 74, "Output"]
+}, Open  ]],
+Cell[9939, 265, 228, 6, 28, "Input"],
+Cell[CellGroupData[{
+Cell[10192, 275, 497, 13, 28, "Input"],
+Cell[10692, 290, 4106, 91, 182, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[14835, 386, 210, 4, 28, "Input"],
+Cell[15048, 392, 1454, 28, 240, "Output"]
+}, Open  ]],
+Cell[16517, 423, 1792, 42, 63, "Input"],
+Cell[18312, 467, 1952, 48, 80, "Input"],
+Cell[CellGroupData[{
+Cell[20289, 519, 176, 3, 28, "Input"],
+Cell[20468, 524, 822, 20, 58, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[21327, 549, 228, 4, 28, "Input"],
+Cell[21558, 555, 689, 17, 116, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[22284, 577, 279, 5, 28, "Input"],
+Cell[22566, 584, 667, 17, 58, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[23270, 606, 624, 15, 28, "Input"],
+Cell[23897, 623, 1733, 34, 206, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[25667, 662, 631, 15, 28, "Input"],
+Cell[26301, 679, 1720, 34, 204, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[28058, 718, 628, 15, 28, "Input"],
+Cell[28689, 735, 1717, 34, 205, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[30443, 774, 627, 15, 28, "Input"],
+Cell[31073, 791, 1415, 29, 200, "Output"]
+}, Open  ]],
+Cell[32503, 823, 2574, 61, 114, "Input"],
+Cell[CellGroupData[{
+Cell[35102, 888, 130, 2, 28, "Input"],
+Cell[35235, 892, 7958, 164, 529, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[43230, 1061, 405, 9, 28, "Input"],
+Cell[43638, 1072, 163, 3, 28, "Output"]
+}, Open  ]],
+Cell[43816, 1078, 102, 2, 28, "Input"],
+Cell[43921, 1082, 102, 2, 28, "Input"],
+Cell[44026, 1086, 102, 2, 28, "Input"],
+Cell[CellGroupData[{
+Cell[44153, 1092, 180, 3, 28, "Input"],
+Cell[44336, 1097, 7822, 165, 604, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[52195, 1267, 224, 4, 28, "Input"],
+Cell[52422, 1273, 112, 1, 28, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)

@@ -56,9 +56,6 @@
 
 (define exp-keymap (make-keymap))
 
-(define-key exp-keymap (kbd "o") 'open-child-experiment)
-(define-key exp-keymap (kbd "c") 'load-champion)
-(define-key exp-keymap (kbd "p") 'load-parameters)
 
 (define-interactive (load-experiment #:optional
                                      (filename
@@ -77,6 +74,10 @@
     (switch-to-buffer (format #f "~a trial ~a/~a" (buffer-name) i (length (exp:child-experiments exp))))
     (use-local-map exp-keymap)
     (set! (local-var 'experiment) (list-ref (exp:child-experiments exp) i))))
+
+(define-key exp-keymap (kbd "o") 'open-child-experiment)
+(define-key exp-keymap (kbd "c") 'load-champion)
+(define-key exp-keymap (kbd "p") 'load-parameters)
 
 
 

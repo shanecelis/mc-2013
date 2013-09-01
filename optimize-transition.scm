@@ -5,6 +5,7 @@
 ;; Rename optimize-transition.scm to transition-params, perhaps?
 (define-module (optimize-transition)
   #:use-module (srfi srfi-9) ;; record
+  #:use-module (srfi srfi-9 gnu) ;; record
   #:use-module (srfi srfi-1) ;; iota
   #:use-module (vector-math)
   #:use-module (emacsy emacsy)
@@ -12,9 +13,11 @@
   
   #:use-module (unified-procedure)
   #:use-module (guile-user) ;; because beer-experiment.scm
+  #:use-module (eval-robot)
   #:export (<transition-params> 
             make-transition-params 
             make-transition-params-effector
+            make-make-transition-effector-func
             tp:trinary-matrix?
             tp:motor-count-in
             tp:motor-count-out
@@ -39,6 +42,13 @@
   (motor-count-out tp:motor-count-out)
   (gene-count tp:gene-count)
   )
+
+(set-record-type-printer! <transition-params>
+  (lambda (record port)
+    (format port "(make-transition-params ~a ~a ~a)" 
+            (tp:motor-count-in record)
+            (tp:motor-count-out record)
+            (tp:trinary-matrix? record))))
 
 (define* (make-transition-params motor-count-in motor-count-out #:optional 
                                  (trinary-matrix? #t))

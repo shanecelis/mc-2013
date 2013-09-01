@@ -1,0 +1,59 @@
+(use-modules 
+ (ice-9 rdelim)
+ (ice-9 getopt-long)
+ (experiment)
+ (experiment-transition)
+ (guile-user)
+ (eval-robot)
+ (emacsy emacsy)
+ )
+
+(format #t "args ~a~%" (program-arguments))
+
+(define args (program-arguments))
+(define argc (length args))
+
+(define option-spec
+  '((physics (single-char #\p) (value #t))
+    (help    (single-char #\h) (value #f))))
+
+(define (usage)
+  (format (current-error-port) "usage: ~a [-p <bullet|fode>] <experiment.dat>~%" (car args)))
+
+(define options (getopt-long args option-spec #:stop-at-first-non-option #t))
+
+(define physics-options
+  `(("bullet" . ,<bullet-physics-car>)
+    ("fode" . ,<fode-physics>)))
+
+
+
+(set! args (option-ref options '() '()))
+(set! argc (length args))
+
+(unless (= 1 argc)
+  (usage)
+  (exit 2))
+
+(define exp (read-experiment (car args)))
+
+(if (option-ref options 'physics #f)
+    (set! physics-class (assoc-ref physics-options (option-ref options 'physics #f)))
+    (set! physics-class (exp:physics-class exp)))
+
+
+(set! current-genome (caar (exp:results exp)))
+(add-hook! emacsy-initialize-hook 
+           (lambda ()
+             (reset-fode)
+             ;(set! eval-beer-robot eval-beer-robot-render)
+             ;;(left-right-task)
+             (format #t "Fitness from experiment is ~a.~%" 
+                     (cdar (exp:results exp)))
+             (format #t "Physics class is ~a.~%" physics-class)
+             ;; I can't draw it. Why?
+             ;(eval-beer-robot-render current-genome)
+             ;(exit 0)
+             )
+           #t)
+

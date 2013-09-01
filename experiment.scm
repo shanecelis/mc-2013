@@ -12,10 +12,13 @@
             generate-parameters!
             run-experiment!
             analyze-data!
+            export-data
+            process-arguments!
             copy-parameters!
             clear-experiment!
             save-experiment
             read-experiment
+            export-data
             <parent-experiment>
             exp:child-experiments
             ))
@@ -31,11 +34,17 @@
   (save-modules #:accessor exp:save-modules #:init-form '((oop goops)
                                                           (oop goops save)
                                                           (experiment))))
+(define-generic process-arguments!)
 
 (define-generic generate-parameters!) 
 (define-generic run-experiment!)
 (define-generic analyze-data!)
 (define-generic save-experiment)
+(define-generic export-data)
+
+(define-method (process-arguments! (exp <experiment>) args)
+  (format (current-error-port) "warning: no argument processing available for ~a~%" exp)
+  #f)
 
 (define-method (generate-parameters! (exp <experiment>))
   #f)

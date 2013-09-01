@@ -29,6 +29,7 @@
  (physics)
  (bullet-physics)
  (bullet-physics-car)
+ (bullet-physics-skateboard)
  (vector-math)
  (physics-buffer)
  (guile-user)
@@ -38,8 +39,7 @@
  (camera)
  (optimize-transition)
  (experiment-transition)
- (eval-robot)
- )
+ (eval-robot))
 
 (set! physics-class <fode-physics>)
 ;(define physics-class <bullet-physics>)
@@ -62,16 +62,20 @@
              (func (vector-ref v i)))))
 
 (define temp (make-cycle
-  (list <fode-physics> <bullet-physics-car>)
-  (lambda (x)
-    (set! physics-class x)
-    (reset-fode))))
+              (list <fode-physics> <bullet-physics> <bullet-physics-car> <bullet-physics-car-ind> <bullet-physics-skateboard>)
+              (lambda (x)
+                (message "Switched to physics class ~a." x)
+                (set! physics-class x)
+                (reset-fode)
+                )))
 
 ;; XXX There is a bug here because I can't get rid of temp.  The macro
 ;; won't behave.  Adding new define-*s is tricky, maybe not worth the
-;; effort.
+;; effort.  Down with things!  Down with commands!  Lambdas forever!
 (define-interactive cycle-physics
   temp)
+
+(define-key global-map (kbd "c") 'cycle-physics)
 
 
 (define ctrnn (make-n-ctrnn node-count))
@@ -516,7 +520,7 @@
                #:object-count body-count 
                #:effector-func 
                (make-effector-func ctrnn-state)
-
+               
                ;; XXX I broke the old interface.  Now it _requires_ a unified-procedure.
                ;; Not what I intended.
 #;               (make-unified-procedure 
@@ -643,7 +647,6 @@
   
   (let* ((initial-conditions (run-if-thunkable my-initial-conditions))
          (trials (length initial-conditions))
-         (last-body-count body-count)
          (fitnesses '()))
     
     (do ((i 1 (1+ i)))
@@ -652,7 +655,6 @@
                           genome
                           (list-ref initial-conditions (1- i))) 
                          0) fitnesses))
-   (set! body-count last-body-count)
    ;; is max ok here?
    (let ((total-fitness (vector (apply max fitnesses)
                                 #;(mean fitnesses))))
@@ -666,27 +668,31 @@
   (left-right-task
    #:optional 
    (genome current-genome)
-   (my-initial-conditions initial-conditions))
+   (my-initial-conditions initial-conditions)
+   (transition-genome #f))
   
   (let* ((initial-conditions (run-if-thunkable my-initial-conditions))
          (trials (length initial-conditions))
-         (last-body-count body-count)
-         (fitnesses '()))
-    
+         (fitnesses '())
+         (last-make-effector-func make-effector-func)
+         )
+    (when transition-genome
+      (set! make-effector-func 
+            (make-make-transition-effector-func
+             (make-transition-params 2 2 #f)
+             transition-genome)))
     (do ((i 1 (1+ i)))
         ((> i trials))
       (cons! (vector-ref (beer-selective-attention 
                           genome
                           (list-ref initial-conditions (1- i))) 
-                         0) fitnesses))
-   (set! body-count last-body-count)
-   ;; is max ok here?
+                         0) 
+             fitnesses))
+    (when transition-genome
+      (set! make-effector-func last-make-effector-func))
    (let ((total-fitness (list->vector fitnesses)))
      (message "Aggregate/Max fitness ~a." total-fitness)
-     total-fitness
-     )))
-
-
+     total-fitness)))
 
 (define last-fitness-func #f) 
 (define last-results #f)
@@ -699,12 +705,18 @@
   (format #t "checking fitness ~a~%" fitness)
   (every (lambda (i)
            (let ((distance (array-ref fitness i)))
-             (<= distance successful-distance))) (iota (array-length fitness))))
+             (<= distance successful-distance))) 
+         (iota (array-length fitness))))
 
 (define (any-individual-succeeded? generation results)
   "Returns true if we haven't found a successful candidate.  Input is (rank genome objective)."
   (format #t "Continue? ~a~%" generation)
   (any (compose individual-succeeded? caddr) results))
+
+(define (get-results-that-succeeded results)
+  "Return the individuals who succeeded at the task."
+  (filter (lambda (result) 
+            (individual-succeeded? (cdr result))) results))
 
 (define (scaffold-any-individual-succeeded? generation results)
   (if (any-individual-succeeded? generation results)
@@ -751,6 +763,7 @@
 (define-interactive (beer-optimize)
   (optimize beer-selective-attention-n 30 '() (compose not scaffold-any-individual-succeeded?)))
 
+;; The option handling is a mess. FIX IT!
 (define-interactive
   (optimize 
    #:optional 
@@ -832,14 +845,6 @@ objective. Genome and fitness are #f64 arrays."
     #;(set! (controller (current-robot)) run-nn-brain)
     ))
 
-#;(define-interactive (secondary-optimize)
-  (let ((results
-         (nsga-ii-search
-          
-          )
-         )))
-  )
-
 (define (run-if-thunkable x)
   (if (thunk? x)
       (x)
@@ -906,6 +911,4 @@ given tasks."
       (list results gen-count eval-count))))
 
 
-;(optimize beer-selective-attention 1)
-
-(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task)
+(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded)

@@ -17,6 +17,7 @@
 
             <gen-count-vs-select-attn-dummy>
             <gen-count-vs-select-attn-trial-easier>
+            <physics-experiment>
             get-ICs
             get-genomes
             exp:physics-class
@@ -26,13 +27,16 @@
            ;; Some trickery so we can access private procedures.
            (module-use! (resolve-module '(experiment-gen-count-vs-select-attn)) (resolve-module '(guile-user))))
 
-(define-class <gen-count-vs-select-attn-trial> (<experiment>)
+(define-class <physics-experiment> (<experiment>)
+  (physics-class #:accessor exp:physics-class #:init-keyword #:physics-class #:init-value #f)
+  )
+
+(define-class <gen-count-vs-select-attn-trial> (<physics-experiment>)
   (task-count #:getter exp:task-count #:init-keyword #:task-count)
   (max-generations #:getter exp:max-gen #:init-keyword #:max-gen #:init-value 1)
   (max-speed #:getter exp:max-speed #:init-keyword #:max-speed #:init-value 1.0)
   (task-done-at-gen #:accessor exp:task-done-at-gen #:init-form #f)
   (task-done-at-time #:accessor exp:task-done-at-time #:init-form #f)
-  (physics-class #:accessor exp:physics-class #:init-keyword #:physics-class #:init-value #f)
   )
 
 (define-class <gen-count-vs-select-attn-dummy> (<gen-count-vs-select-attn-trial>))

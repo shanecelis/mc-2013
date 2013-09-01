@@ -5,6 +5,7 @@
   #:use-module (emacsy emacsy)
   #:use-module (optimize-transition)
   #:use-module (beer-initial-conditions)
+  #:use-module (experiment-gen-count-vs-select-attn)
   #:use-module (physics)
   #:use-module (stats)
   #:use-module (bullet-physics-car)
@@ -12,6 +13,9 @@
   #:use-module (guile-user)
   #:use-module (ice-9 match)
   #:use-module (eval-robot)
+  #:use-module (fitness)
+  #:use-module (nsga-ii)
+  #:use-module (mathematica-plot plot)
   #:export (
             left-IC 
             right-IC 
@@ -23,18 +27,21 @@
             exp:eval-count
             exp:wall-clock-time
             <experiment-transition-parent> 
-            ))
+            <experiment-fode->bullet-trial>
+            exp:transition-params
+            )
+  #:re-export (exp:physics-class)
+  )
 
-(define-class <experiment-transition-trial> (<experiment>)
+(define-class <experiment-transition-trial> (<physics-experiment>)
   (ICs #:accessor exp:ICs)
   (max-gen #:accessor exp:max-gen #:init-keyword #:max-gen)
-  (gen-count #:accessor exp:gen-count)
-  (eval-count #:accessor exp:eval-count)
+  (gen-count #:accessor exp:gen-count #:init-value 0)
+  (eval-count #:accessor exp:eval-count #:init-value 0)
   (wall-clock-time #:accessor exp:wall-clock-time)
-  (physics-class #:accessor exp:physics-class #:init-keyword #:physics-class #:init-value #f)
   (succeeded? #:accessor exp:succeeded?))
 
-(define-class <experiment-fode->bullet-trail> (<experiment-transition-trial>)
+(define-class <experiment-fode->bullet-trial> (<experiment-transition-trial>)
   (mc-genome #:getter exp:mc-genome #:init-keyword #:mc-genome) ;; minimal cognition genome
   (transition-params #:accessor exp:transition-params #:init-keyword #:transition-params)
   )
@@ -46,6 +53,7 @@
                  '((experiment-transition)
                    (physics)
                    (fode-physics)
+                   (bullet-physics-skateboard)
                    (bullet-physics-car)
                    (bullet-physics)))))
 
@@ -71,8 +79,8 @@
   (set! (exp:ICs exp) (list (left-IC) (right-IC))))
 
 (define-method (run-experiment! (exp <experiment-transition-trial>))
-  (define (my-any-individual-succeeded? . args)
-    (let ((result (apply any-individual-succeeded? args)))
+  (define (my-any-individual-succeeded? generation results)
+    (let ((result (any-individual-succeeded? generation results)))
       (if result
           (set! (exp:succeeded? exp) #t))
       result))
@@ -80,26 +88,46 @@
   (if (exp:physics-class exp)
    (set! physics-class (exp:physics-class exp)))
   (let ((start-time (emacsy-time)))
-   (match (generation-count-to-do3
-           (map make-apply-IC (exp:ICs exp)) 
-           (exp:max-gen exp)
-           '()
-           (compose not my-any-individual-succeeded?))
+    (match (generation-count-to-do3
+            (map make-apply-IC (exp:ICs exp)) 
+            (exp:max-gen exp)
+            '()
+            (compose not my-any-individual-succeeded?))
      ((myresults gen-count eval-count)
-      (set! (exp:results exp) myresults)
+      (set! (exp:results exp) (get-results-that-succeeded myresults))
       (set! (exp:gen-count exp) gen-count)
       (set! (exp:eval-count exp) eval-count)
       (set! (exp:wall-clock-time exp) (- (emacsy-time) start-time))))))
 
-(define-method (run-experiment! (exp <experiment-fode->bullet-trail>))
-  (nsga-ii-search ; Need the fitness function.
-   #:gene-count (tp:gene-count (exp:transition-params exp))
-   #:objective-count 2
-   #:population-count 12
-   #:generation-count (exp:max-gen exp)
-   #:seed-population '()
-   )
-  )
+(define-method (run-experiment! (exp <experiment-fode->bullet-trial>))
+  (define (my-any-individual-succeeded? generation results)
+    (let ((result (any-individual-succeeded? generation results)))
+      (if result
+          (set! (exp:succeeded? exp) #t))
+      result))
+  (let ((eval-count 0)
+        (generation-count 0)
+        (myresults #f)
+        (start-time (emacsy-time)))
+   (define-fitness
+     ((minimize "left distance")
+      (minimize "right distance"))
+     (fitness-fn genome)
+     (incr! eval-count)
+     (left-right-task (exp:mc-genome exp) (map make-apply-IC (exp:ICs exp)) genome))
+   (set! myresults (nsga-ii-search fitness-fn
+                    #:gene-count (tp:gene-count (exp:transition-params exp))
+                    #:objective-count 2
+                    #:population-count 12
+                    #:generation-count (exp:max-gen exp)
+                    #:seed-population '()
+                    #:generation-tick-func (lambda args
+                                             (incr! generation-count)
+                                             (apply (compose not my-any-individual-succeeded?) args))))
+   (set! (exp:results exp) (get-results-that-succeeded myresults))
+   (set! (exp:gen-count exp) generation-count)
+   (set! (exp:eval-count exp) eval-count)
+   (set! (exp:wall-clock-time exp) (- (emacsy-time) start-time))))
 
 (define-method (analyze-data! (exp <experiment-transition-trial>))
   #f)
@@ -120,6 +148,23 @@
     (show-stats wall-clock-times "wall-clock-times")
     (show-stats succeeded "success")))
 
+(define-method (export-data (exp <experiment-transition-parent>) port)
+  (let* ((exps (exp:child-experiments exp))
+         (gen-counts (map exp:gen-count exps))
+         (eval-counts (map exp:eval-count exps))
+         (wall-clock-times (map exp:wall-clock-time exps))
+         (succeeded (map (lambda (exp) (if (exp:succeeded? exp) 1. 0.)) exps)))
+    
+    (define (show-stats lst name)
+      (format port "~a -> ~a~%" name (sexp->mathematica lst)))
+    (format port "{~%")
+    (show-stats gen-counts "genCounts")
+    (show-stats eval-counts ", evalCounts")
+    (show-stats wall-clock-times ", wallClockTimes")
+    (show-stats succeeded ", success")
+    (format port "}~%")
+    ))
+
 (define-method (initialize (exp <experiment-transition-parent>) initargs)
   (next-method)
   (set! (exp:save-modules exp) 
@@ -128,5 +173,6 @@
                    (physics)
                    (fode-physics)
                    (bullet-physics-car)
-                   (bullet-physics)
-                   ))))
+                   (bullet-physics-skateboard)
+                   (bullet-physics)))))
+

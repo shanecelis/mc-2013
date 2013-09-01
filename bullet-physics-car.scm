@@ -8,19 +8,24 @@
   #:use-module (vector-math)
   #:use-module (physics)
   #:use-module (emacsy util)  
-  #:export (bpc:wheels bpc:axes bpc:slider)
+  #:export (bpc:wheels bpc:axes bpc:slider <bullet-physics-car> <bullet-physics-car-ind>
+                       )
   )
 
 ;; This is the factor that is multiplied by the wheels.  Basically the
 ;; wheels' motor constant.
-(define velocity-constant 12.)
+(define velocity-constant 5.)
+(define max-impulse 5.)
+(define wheel-diameter (* 2 (/ agent-diameter 5.)))
 
-
-(define-class-public <bullet-physics-car> (<bullet-physics>)
+(define-class <bullet-physics-car> (<bullet-physics>)
   (wheels #:accessor bpc:wheels #:init-value '())
   (axes #:accessor bpc:axes #:init-value '())
   (slider #:accessor bpc:slider #:init-value #f)
   )
+
+;; This car has independent steering for its 4 wheels.
+(define-class <bullet-physics-car-ind> (<bullet-physics-car>))
 
 (define-method (initialize (bpc <bullet-physics-car>) initargs)
   "Initialize the bullet car."
@@ -29,6 +34,8 @@
   (let ()
    (define (process-wheel wheel)
      (rotate-body! wheel 0. 0. (/ pi 2.))
+     ;(format #t "friction ~a~%" (get-friction wheel))
+     (set-friction! wheel 1000.)
      (sim-add-body (bp:sim bpc) 
                    wheel
                    wheel-group          ; is-a
@@ -48,9 +55,9 @@
               0 ;y
               0)
       ;; dimensions
-      (vector (/ agent-diameter 5.)
+      (vector wheel-diameter
               (* 0.2 agent-diameter)
-              (/ agent-diameter 5.))
+              wheel-diameter)
       ;; mass
       1.
       ;; name
@@ -120,11 +127,54 @@ seconds."
              (motor1 (car (bpc:axes bp)))
              (motor2 (cadr (bpc:axes bp)))
              (motor3 (caddr (bpc:axes bp)))
-             (motor4 (cadddr (bpc:axes bp))))
-        #;(format #t "e1 ~a e2 ~a ~%" e1 e2)
-        (for-each (lambda (motor) (actuate-angular-motor motor
-                                          (* velocity-constant e1))) (list motor1 motor3))
-        (for-each (lambda (motor) (actuate-angular-motor motor
-                                          (- (* velocity-constant e2)))) (list motor2 motor4))))
+             (motor4 (cadddr (bpc:axes bp)))
+             (wheel-radius (/ wheel-diameter 2.))
+             (angular-velocity-1 (/ (* velocity-constant e1) wheel-radius))
+             (angular-velocity-2 (- (/ (* velocity-constant e2) wheel-radius)))
+             )
+        ;(format #t "e1 ~a e2 ~a ~%" e1 e2)
+        (for-each (lambda (motor) 
+                    (actuate-angular-motor motor
+                                           angular-velocity-1
+                                           max-impulse
+                                           )) (list motor1 motor3))
+        (for-each (lambda (motor) 
+                    (actuate-angular-motor motor
+                                           angular-velocity-2
+                                           max-impulse
+                                           )) (list motor2 motor4))
+        #;(for-each (lambda (motor) 
+                    (actuate-angular-motor motor
+                                           #f)) (list motor2 motor4))
+        ))
   (update-fake-state bp)
   (sim-tick (bp:sim bp) h (step-count bp)))
+
+(define-method (step-physics (bp <bullet-physics-car-ind>) h)
+  "Apply the effectors and step the physics simulation forward by h
+seconds."
+  (when (effector-func bp)
+      (let* ((e1 ((effector-func bp) (get-time bp) 1))
+             (e2 ((effector-func bp) (get-time bp) 2))
+             (e3 ((effector-func bp) (get-time bp) 3))
+             (e4 ((effector-func bp) (get-time bp) 4))
+             (agent (car (bp:objects bp)))
+             (motor1 (car (bpc:axes bp)))
+             (motor2 (cadr (bpc:axes bp)))
+             (motor3 (caddr (bpc:axes bp)))
+             (motor4 (cadddr (bpc:axes bp)))
+             (wheel-radius (/ wheel-diameter 2.)))
+        ;(format #t "e1 ~a e2 ~a e3 ~a e4 ~a~%" e1 e2 e3 e4)
+        (for-each (lambda (motor effector-value) 
+                    (actuate-angular-motor motor
+                                           (/ (* velocity-constant effector-value) wheel-radius)
+                                           max-impulse
+                                           )) (list motor1 motor3) (list e1 e3))
+        (for-each (lambda (motor effector-value) 
+                    (actuate-angular-motor motor
+                                           (- (/ (* velocity-constant effector-value) wheel-radius))
+                                           max-impulse
+                                           )) (list motor2 motor4) (list e2 e4))
+        )
+      (update-fake-state bp)
+      (sim-tick (bp:sim bp) h (step-count bp))))

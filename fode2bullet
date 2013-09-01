@@ -1,0 +1,69 @@
+#!/usr/bin/env guile \
+--debug -e main -s 
+!#
+(use-modules (experiment)
+             (experiment-gen-count-vs-select-attn)
+             (experiment-transition)
+             (beer-initial-conditions)
+             (beer-parameters)
+             (emacsy util)
+             (oop goops)
+             (fode-physics)
+             (bullet-physics)
+             (oop goops save)
+             (system repl error-handling)
+             (eval-robot))
+;; UGH. beer-experiment.scm should be put into a module or migrated
+;; into several modules more likely.
+(load "beer-experiment.scm")
+
+(define (main args)
+  ;(format #t "args ~a~%" args)
+  (call-with-error-handling
+   (lambda ()
+     (let ((argc (length args))
+           (filename #f)
+           (physics-class-arg #f)
+           (fode-expr-filename #f))
+       (unless (or (= 3 argc)
+                   (= 4 argc))
+         (format #t "Usage: fode2bullet <output-filename> <fode-experiment-filename> [physics-class]~%")
+         (exit 2))
+       (set! filename (cadr args))
+       (set! fode-expr-filename (caddr args))
+       (set! physics-class-arg (if (= 3 argc) 
+                                   <bullet-physics-car>
+                                   (caddr args)))
+       (run-experiment filename physics-class-arg fode-expr-filename)))))
+
+(define* (run-experiment filename physics-class-arg fode-expr-filename)
+  (define exp-class <experiment-fode->bullet-trial>)
+  (define fode-exp (read-experiment fode-expr-filename))
+  (define fode-genome (begin
+                        (when (null? (exp:results fode-exp))
+                            (format (current-error-port) "error: no successful results available in ~a.~%" fode-expr-filename)
+                            (exit 1))
+                          (caar (exp:results fode-exp))))
+  (define exp #f)
+  (define trial-count 1) 
+  (define (make-trial) 
+    (make-instance exp-class 
+                   #:max-gen 50 
+                   #:physics-class 
+                   physics-class-arg
+                   #:mc-genome
+                   fode-genome
+                   #:transition-params
+                   (make-transition-params 2 2 #f)))
+  
+  #;(format #t "fode-genome ~a~%" fode-genome)
+
+  (set! exp (make-trial))
+
+  (generate-parameters! exp)
+
+  (run-experiment! exp)
+
+  (analyze-data! exp)
+
+  (save-experiment exp filename))
