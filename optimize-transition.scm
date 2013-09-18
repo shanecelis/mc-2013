@@ -44,11 +44,11 @@
   )
 
 (set-record-type-printer! <transition-params>
-  (lambda (record port)
-    (format port "(make-transition-params ~a ~a ~a)" 
-            (tp:motor-count-in record)
-            (tp:motor-count-out record)
-            (tp:trinary-matrix? record))))
+                          (lambda (record port)
+                            (format port "(make-transition-params ~a ~a ~a)" 
+                                    (tp:motor-count-in record)
+                                    (tp:motor-count-out record)
+                                    (tp:trinary-matrix? record))))
 
 (define* (make-transition-params motor-count-in motor-count-out #:optional 
                                  (trinary-matrix? #t))
@@ -62,7 +62,7 @@
 (define (make-transition-params-effector transition-params effector genome)
   (make-unified-procedure 
    double 
-   (lambda (t i effector-context . rest)
+   (lambda (t i . rest)
      ;; Oh, I can't just do it as matrix multiplication because I get
      ;; the values one at a time, and I send them out one at a time.
      ;; Therefore, I would either need to change the interface or I
@@ -77,7 +77,7 @@
             (out-count (tp:motor-count-out transition-params))
             (inputs (map 
                      ;; Effector is called multiple times.
-                     (lambda (i) (effector t i effector-context)) 
+                     (lambda (i) (apply effector t i rest)) 
                      (iota in-count 1)))
             ;; We'll treat genome like a matrix in row-major order.
             ;; We want to compute for matrix M = [ r1; r2; r3 ] and

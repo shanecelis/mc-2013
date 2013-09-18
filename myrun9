@@ -1,0 +1,25 @@
+#!/bin/bash
+
+trial_count=20;
+dir=results-9;
+mkdir -p $dir;
+for i in $(range 1 $trial_count); do
+    bulletfile=$dir/bullet-$i.dat;
+    if [ ! -f $bulletfile ]; then
+        ./run-experiment $bulletfile '<bullet-physics-car-ind>'; 
+    else
+        echo "skipping $bulletfile";
+    fi
+    fodefile=$dir/fode-$i.dat;
+    if [ ! -f $fodefile ]; then
+        ./run-experiment $fodefile '<fode-physics>';
+    else
+        echo "skipping $fodefile";
+    fi
+    f2bfile=$dir/f2b2-$i.dat;
+    if [ ! -f $f2bfile ]; then
+        ./fode2bullet $f2bfile $fodefile '<bullet-physics-car-ind>'; 
+    else
+        echo "skipping $f2bfile";
+    fi
+done

@@ -62,7 +62,7 @@
              (func (vector-ref v i)))))
 
 (define temp (make-cycle
-              (list <fode-physics> <bullet-physics> <bullet-physics-car> <bullet-physics-car-ind> <bullet-physics-skateboard>)
+              (list <fode-physics> <bullet-physics> <bullet-physics-car> <bullet-physics-car-ind> <bullet-physics-skateboard> <bullet-physics-skateboard-1> <bullet-physics-skateboard-2>)
               (lambda (x)
                 (message "Switched to physics class ~a." x)
                 (set! physics-class x)
@@ -288,12 +288,18 @@
 
 
 
+;(define choose-initial-conditions beer-choose-initial-conditions)
 ;(define choose-initial-conditions (make-freeze-random beer-choose-initial-conditions))
 ;(define choose-initial-conditions (make-parametric-IC 50.))
 (define choose-initial-conditions (make-apply-IC (left-IC)))
 
 (define-interactive (change-IC)
   (set! choose-initial-conditions (make-freeze-random beer-choose-initial-conditions)))
+
+(define initial-conditions-index 0)
+(define-interactive (next-IC)
+  (set! initial-conditions-index (mod (1+ initial-conditions-index) (length initial-conditions)))
+  (set! choose-initial-conditions (list-ref initial-conditions initial-conditions-index)))
 
 (define fode-state #f)
 
@@ -372,6 +378,7 @@
 
       (when restart?
         ;; restart
+        (next-IC)
         (reset-fode)))
     (incr! tick-count)))
 
@@ -691,7 +698,7 @@
     (when transition-genome
       (set! make-effector-func last-make-effector-func))
    (let ((total-fitness (list->vector fitnesses)))
-     (message "Aggregate/Max fitness ~a." total-fitness)
+     (message "Fitness ~a." total-fitness)
      total-fitness)))
 
 (define last-fitness-func #f) 
@@ -911,4 +918,4 @@ given tasks."
       (list results gen-count eval-count))))
 
 
-(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded)
+(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions make-effector-function reset-camera)

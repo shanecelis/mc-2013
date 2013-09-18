@@ -36,7 +36,7 @@
                                                           (experiment))))
 (define-generic process-arguments!)
 
-(define-generic generate-parameters!) 
+(define-generic generate-parameters!)
 (define-generic run-experiment!)
 (define-generic analyze-data!)
 (define-generic save-experiment)

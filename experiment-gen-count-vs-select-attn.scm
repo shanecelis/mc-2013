@@ -82,8 +82,7 @@
   (for-each (lambda (i)
               (vector-set! (exp:task-done-at-gen exp) i (random 10.)))
             (iota (exp:task-count exp)))
-  (format #t "Stop running dummy~%")
-  )
+  (format #t "Stop running dummy~%"))
 
 (define-method (run-experiment! (exp <gen-count-vs-select-attn-trial>))
   (format #t "Running trial~%")

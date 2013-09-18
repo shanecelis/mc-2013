@@ -18,7 +18,7 @@
 (load "beer-experiment.scm")
 
 (define (main args)
-  ;(format #t "args ~a~%" args)
+  (format #t "args ~a~%" args)
   (call-with-error-handling
    (lambda ()
      (let ((argc (length args))
@@ -33,7 +33,7 @@
        (set! fode-expr-filename (caddr args))
        (set! physics-class-arg (if (= 3 argc) 
                                    <bullet-physics-car>
-                                   (caddr args)))
+                                   (eval (string->symbol (cadddr args)) (interaction-environment))))
        (run-experiment filename physics-class-arg fode-expr-filename)))))
 
 (define* (run-experiment filename physics-class-arg fode-expr-filename)

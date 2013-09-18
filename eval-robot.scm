@@ -10,6 +10,8 @@
   #:use-module (physics-ui)
   #:use-module (srfi srfi-1)
   #:use-module (scene-smob)
+  #:use-module (guile-user)
+  ;#:use-module ((guile-user) #:select (reset-camera))
   #:export (
             ;; Procedures
             eval-beer-robot-render
@@ -59,16 +61,21 @@
   (let* ((buffer (switch-to-buffer "*eval-robot*" <physics-buffer>))
          (scene (scene buffer)))
     (define (draw fode-state)
+      (reset-camera)
       (draw-physics scene fode-state)
       (if (q-empty? event-queue)
           (block-yield)
           (primitive-command-tick)))
+    (define (undraw fode-state)
+      (undraw-physics scene fode-state))
     (eval-beer-robot-headless genome
                               #:step-fn (lambda (fode-state) 
                                           (draw fode-state) 
                                           (step-fn fode-state))
                               #:begin-fn begin-fn
-                              #:end-fn end-fn
+                              #:end-fn (lambda (fode-state) 
+                                         (undraw fode-state)
+                                         (end-fn fode-state))
                               #:max-tick-count max-tick-count
                               #:init-ctrnn-state init-ctrnn-state)))
 
@@ -110,3 +117,8 @@
     (end-fn fode-state)))
 
 (define eval-beer-robot eval-beer-robot-headless)
+
+(define-interactive (toggle-render)
+  (if (eq? eval-beer-robot eval-beer-robot-render)
+      (set! eval-beer-robot eval-beer-robot-headless)
+      (set! eval-beer-robot eval-beer-robot-render)))

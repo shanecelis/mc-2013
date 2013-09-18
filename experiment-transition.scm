@@ -20,15 +20,18 @@
             left-IC 
             right-IC 
             <experiment-transition-trial> 
-            ICs 
+            exp:ICs 
             exp:mc-genome
             exp:max-gen
             exp:gen-count
             exp:eval-count
             exp:wall-clock-time
+            exp:succeeded?
             <experiment-transition-parent> 
             <experiment-fode->bullet-trial>
             exp:transition-params
+            run-individual
+            install-individual
             )
   #:re-export (exp:physics-class)
   )
@@ -39,7 +42,7 @@
   (gen-count #:accessor exp:gen-count #:init-value 0)
   (eval-count #:accessor exp:eval-count #:init-value 0)
   (wall-clock-time #:accessor exp:wall-clock-time)
-  (succeeded? #:accessor exp:succeeded?))
+  (succeeded? #:accessor exp:succeeded? #:init-value #f))
 
 (define-class <experiment-fode->bullet-trial> (<experiment-transition-trial>)
   (mc-genome #:getter exp:mc-genome #:init-keyword #:mc-genome) ;; minimal cognition genome
@@ -97,7 +100,40 @@
       (set! (exp:results exp) (get-results-that-succeeded myresults))
       (set! (exp:gen-count exp) gen-count)
       (set! (exp:eval-count exp) eval-count)
-      (set! (exp:wall-clock-time exp) (- (emacsy-time) start-time))))))
+      (set! (exp:wall-clock-time exp) (- (emacsy-time) start-time)))))
+  (if (exp:succeeded? exp) 
+      (run-individual exp 0)))
+
+
+
+(define-method (run-individual (exp <experiment-transition-trial>) index)
+  (let ((recalc-fitness (left-right-task (car (list-ref (exp:results exp) index))
+                                         (map make-apply-IC (exp:ICs exp)))))
+    (format #t "Recorded fitness ~a and recalculated fitness ~a.~%" 
+            (cdr (list-ref (exp:results exp) index))
+            recalc-fitness)))
+
+(define-method (run-individual (exp <experiment-fode->bullet-trial>) index)
+  (let ((recalc-fitness (left-right-task (exp:mc-genome exp) 
+                                         (map make-apply-IC (exp:ICs exp))
+                                         (car (list-ref (exp:results exp) index)))))
+    (format #t "Recorded fitness ~a and recalculated fitness ~a.~%" 
+            (cdr (list-ref (exp:results exp) index))
+            recalc-fitness)))
+
+(define-method (install-individual (exp <experiment-transition-trial>) index)
+  (set! current-genome (car (list-ref (exp:results exp) index)))
+  (set! initial-conditions (map make-apply-IC (exp:ICs exp))))
+
+(define-method (install-individual (exp <experiment-fode->bullet-trial>) index)
+  (set! current-genome (exp:mc-genome exp))
+  (set! make-effector-func 
+        (make-make-transition-effector-func
+         ;; XXX this eval shouldn't be here.  It needs to be fixed on unserialization
+         (eval (exp:transition-params exp) (interaction-environment))
+         (car (list-ref (exp:results exp) index)) #;transition-genome
+         ))
+  (set! initial-conditions (map make-apply-IC (exp:ICs exp))))
 
 (define-method (run-experiment! (exp <experiment-fode->bullet-trial>))
   (define (my-any-individual-succeeded? generation results)
@@ -105,6 +141,9 @@
       (if result
           (set! (exp:succeeded? exp) #t))
       result))
+  (if (exp:physics-class exp)
+   (set! physics-class (exp:physics-class exp)))
+  (format #t "physics class ~a~%" physics-class)
   (let ((eval-count 0)
         (generation-count 0)
         (myresults #f)
@@ -127,7 +166,10 @@
    (set! (exp:results exp) (get-results-that-succeeded myresults))
    (set! (exp:gen-count exp) generation-count)
    (set! (exp:eval-count exp) eval-count)
-   (set! (exp:wall-clock-time exp) (- (emacsy-time) start-time))))
+   (set! (exp:wall-clock-time exp) (- (emacsy-time) start-time)))
+  (if (exp:succeeded? exp) 
+      (run-individual exp 0))
+  )
 
 (define-method (analyze-data! (exp <experiment-transition-trial>))
   #f)
