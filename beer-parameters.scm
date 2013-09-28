@@ -1,5 +1,6 @@
 (define-module (beer-parameters)
   #:use-module (vector-math))
+
 (define-public (scale-by a list)
   (map (lambda (x) (* a x)) list))
 

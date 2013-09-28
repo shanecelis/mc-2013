@@ -23,6 +23,12 @@
             make-effector-func
             make-vision-func
             eval-beer-robot
+            
+            ;; Brain stuff
+            make-brain
+            make-brain-state
+            step-brain
+            set-brain-input!
             ))
 
 (define make-effector-func #f)
@@ -79,6 +85,19 @@
                               #:max-tick-count max-tick-count
                               #:init-ctrnn-state init-ctrnn-state)))
 
+;; I want to make brains more generic.  Should I have a brain class?
+(define (make-brain)  
+  (make-n-ctrnn node-count))
+
+(define (make-brain-state brain)
+  (make-ctrnn-state brain))
+
+(define (set-brain-input! brain input)
+  (set! (input-func brain) input))
+
+(define (step-brain brain-state time-step brain)
+  (step-ctrnn brain-state time-step brain))
+
 (define*
   (eval-beer-robot-headless genome
                    #:key 
@@ -87,8 +106,8 @@
                    (end-fn identity)
                    (max-tick-count 2000)
                    (init-ctrnn-state #f))
-  (let* ((ctrnn (make-n-ctrnn node-count))
-         (ctrnn-state (make-ctrnn-state ctrnn))
+  (let* ((ctrnn (make-brain))
+         (ctrnn-state (make-brain-state ctrnn))
          (effector-func (make-effector-func ctrnn-state))
          (fode (make physics-class
                  #:object-count body-count 
@@ -100,13 +119,13 @@
     (if init-ctrnn-state
      (array-copy! init-ctrnn-state ctrnn-state))
     (genome->ctrnn genome ctrnn)
-    (set! (input-func ctrnn) vision-input)
+    (set-brain-input! ctrnn vision-input)
     (begin-fn fode-state)
     (while (and 
             (< tick-count max-tick-count) 
             (step-fn fode-state))
       (if #t #;(= 0 (mod tick-count update-ctrnn-freq))
-          (if (not (step-ctrnn ctrnn-state h ctrnn))
+          (if (not (step-brain ctrnn-state h ctrnn))
               (throw 'step-ctrnn-error)))
       (if (not (step-physics fode-state h))
           (throw 'step-physics-error))

@@ -1,12 +1,33 @@
 #!/bin/bash
+# myrun
+if [ $# -ne 1 ]; then
+    echo "usage: myrun <run-config.sh>" >&2;
+    echo "run-config should set the variables: dir, trial_count, and physics_class."
+    exit 2;
+fi
 
-trial_count=14;
-dir=results-1;
+. "$1"
+
+if [ -z "$trial_count" ]; then
+    echo "trial_count not set."; 
+    exit 1;
+fi
+if [ -z "$dir" ]; then
+    echo "dir not set."; 
+    exit 3;
+fi
+if [ -z "$physics_class" ]; then
+    echo "physics_class not set."; 
+    exit 3;
+fi
+#trial_count=14;
+#dir=results-1;
+#physics_class='<bullet-physics-car';
 mkdir -p $dir;
 for i in $(range 1 $trial_count); do
     bulletfile=$dir/bullet-$i.dat;
     if [ ! -f $bulletfile ]; then
-        ./run-experiment $bulletfile '<bullet-physics-car>'; 
+        ./run-experiment $bulletfile "$physics_class";
     else
         echo "skipping $bulletfile";
     fi
@@ -18,7 +39,7 @@ for i in $(range 1 $trial_count); do
     fi
     f2bfile=$dir/f2b2-$i.dat;
     if [ ! -f $f2bfile ]; then
-        ./fode2bullet $f2bfile $fodefile
+        ./fode2bullet $f2bfile $fodefile "$physics_class";
     else
         echo "skipping $f2bfile";
     fi

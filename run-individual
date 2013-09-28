@@ -1,12 +1,15 @@
 (use-modules 
  (ice-9 rdelim)
+ (ice-9 optargs)
  (ice-9 getopt-long)
  (experiment)
  (experiment-transition)
  (guile-user)
  (eval-robot)
  (emacsy emacsy)
- (system repl error-handling))
+ (system repl error-handling)
+ (mathematica-aux)
+ )
 
 (format #t "args ~a~%" (program-arguments))
 
@@ -15,14 +18,57 @@
 
 (define option-spec
   '((physics (single-char #\p) (value #t))
-    (help    (single-char #\h) (value #f))))
+    (help    (single-char #\h) (value #f))
+    (sandwich (single-char #\s) (value #t))
+    (sandwich-outfile (single-char #\o) (value #t))
+    (sandwich-random (single-char #\r) (value #t))
+    
+    ))
 
 (define (usage)
-  (format (current-error-port) "usage: ~a [-p physics-class] <experiment.dat>~%" (car (program-arguments))))
+  (format (current-error-port) "usage: ~a [-p physics-class] [-s sandwich] [-o sandwich-out] [-r sandwich-random] <experiment.dat>~%" (car (program-arguments))))
 
 (define options (getopt-long args option-spec #:stop-at-first-non-option #t))
 
 (define exp #f)
+
+(define (substitute-sandwich exp sandwich)
+  (set! (exp:results exp)
+        (map (lambda (record)
+               (cons sandwich
+                     (cdr record)))
+             (exp:results exp))))
+
+(define (matrix-norm A)
+  "Find ||A||_1 norm for a row-major matrix."
+  (+ (max (vector-ref A 0)
+          (vector-ref A 2))
+     (max (vector-ref A 1)
+          (vector-ref A 3))))
+
+(define* (random-matrix #:optional (range 1.))
+  (list->vector (map (lambda (i)
+                       (random range)) (iota 4))))
+
+(define (matrix+ A B)
+  (list->vector (map + (vector->list A) (vector->list B))))
+
+(define (plot-sandwich exp random-list outfile count I)
+  (let* (#;(I #(1. 0. 0. 1.))
+         (results 
+          (append-map! (lambda (random) 
+             (map (lambda (i)
+                    (let* ((R (random-matrix random))
+                           (I* (matrix+ I R))
+                           (fitness (begin (substitute-sandwich exp I*)
+                                           (run-individual exp 0))))
+                      (list R fitness)))
+                  (iota count)))
+                       random-list
+                       )))
+    (call-with-output-file outfile 
+      (lambda (port)
+        (format port "~a" (sexp->mathematica results))))))
 
 (define (main)
   (set! args (option-ref options '() '()))
@@ -38,23 +84,25 @@
       (set! physics-class (exp:physics-class exp)))
   (format #t "Physics class is ~a.~%" physics-class)
   (if (exp:succeeded? exp)
-                                        ;(set! current-genome (caar (exp:results exp)))
-      #;(let ((trans-params (eval (exp:transition-params exp) (interaction-environment))))
-        (set! current-genome (exp:mc-genome exp))
-        (set! make-effector-func 
-            (make-make-transition-effector-func
-             trans-params
-             (caar (exp:results exp)) #;transition-genome
-             ))
-        (format #t "fitness: ~a~%" (left-right-task current-genome 
-                                                    (map make-apply-IC (exp:ICs exp))
-                                                    (caar (exp:results exp))))
-        )
       (begin
+        (when (option-ref options 'sandwich #f)
+          (substitute-sandwich 
+           exp 
+           (read-from-string (option-ref options 'sandwich #f))))
+        (when (option-ref options 'sandwich-outfile #f)
+         (plot-sandwich exp 
+                        (read-from-string 
+                         (option-ref options 'sandwich-random "(1.)"))
+                        (option-ref options 'sandwich-outfile #f)
+                        10
+                        (read-from-string
+                         (option-ref options 'sandwich "#(1 0 0 1)"))
+                        ))
         (run-individual exp 0)
         (install-individual exp 0))
-      (begin (format (current-error-port) "error: This experiment did not succeed.")
-             (exit 1)))
+      (begin 
+        (format (current-error-port) "error: This experiment did not succeed.~%")
+        (exit 1)))
 
   (add-hook! emacsy-initialize-hook 
              (lambda ()

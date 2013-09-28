@@ -111,7 +111,8 @@
                                          (map make-apply-IC (exp:ICs exp)))))
     (format #t "Recorded fitness ~a and recalculated fitness ~a.~%" 
             (cdr (list-ref (exp:results exp) index))
-            recalc-fitness)))
+            recalc-fitness)
+    recalc-fitness))
 
 (define-method (run-individual (exp <experiment-fode->bullet-trial>) index)
   (let ((recalc-fitness (left-right-task (exp:mc-genome exp) 
@@ -119,7 +120,8 @@
                                          (car (list-ref (exp:results exp) index)))))
     (format #t "Recorded fitness ~a and recalculated fitness ~a.~%" 
             (cdr (list-ref (exp:results exp) index))
-            recalc-fitness)))
+            recalc-fitness)
+    recalc-fitness))
 
 (define-method (install-individual (exp <experiment-transition-trial>) index)
   (set! current-genome (car (list-ref (exp:results exp) index)))

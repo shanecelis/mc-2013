@@ -78,8 +78,8 @@
 (define-key global-map (kbd "c") 'cycle-physics)
 
 
-(define ctrnn (make-n-ctrnn node-count))
-(define ctrnn-state (make-ctrnn-state ctrnn))
+(define ctrnn (make-brain))
+(define ctrnn-state (make-brain-state ctrnn))
 
 (define init-ctrnn-state (make-ctrnn-state ctrnn))
 ;; XXX Let's not randomize just yet.
@@ -365,7 +365,7 @@
         (when #t #;(= 0 (mod tick-count update-ctrnn-freq))
           #;(if draw-display?
               (for-each (lambda (actor) (remove-actor scene actor)) vision-line-actors))
-          (step-ctrnn ctrnn-state h ctrnn)))
+          (step-brain ctrnn-state h ctrnn)))
       (if draw-display?
           (draw-physics scene fode-state))
       
@@ -468,7 +468,7 @@
 
 (define* (make-current-vision-input #:optional (draw? #t) (my-fode-state fode-state))
   (if (and use-c-vision? (not record-vision-values?))
-            ;; Here's how to use the C implementation of vision.
+      ;; Here's how to use the C implementation of vision.
       (make-unified-procedure 
        int 
        vision-input-pointer
@@ -541,7 +541,7 @@
   
   (set! fode-state (fix-physics fode))
   (choose-initial-conditions fode fode-state)
-  (set! (input-func ctrnn) (make-current-vision-input))
+  (set-brain-input! ctrnn (make-current-vision-input))
   (set! vision-line-actors #f))
 
 (define (go-right t i . rest)
@@ -562,7 +562,7 @@
 (define-interactive (randomize-brain)
   (randomize-genome! current-genome)
   (genome->ctrnn current-genome ctrnn)
-  (set! (input-func ctrnn) (make-current-vision-input))
+  (set-brain-input! ctrnn (make-current-vision-input))
   (randomize-ctrnn-state! ctrnn-state))
 
 (define-interactive (reset-camera)
@@ -917,5 +917,34 @@ given tasks."
                                              continue-search?)
       (list results gen-count eval-count))))
 
+(define-interactive (hand-made-brain)
+  (let ((motor 0.)
+        (vision-input #f))
+   (set! make-brain (lambda args 
+                      #t))
+   (set! make-brain-state (lambda args 
+                            (make-ctrnn-state (make-n-ctrnn node-count))))
+   (set! set-brain-input! (lambda (brain input)
+                           (set! vision-input input)))
+   (set! make-effector-func 
+         (lambda (brain)
+          (make-unified-procedure
+           double
+           (lambda (t i context other-context)
+             (if (= i 1)
+                 motor 
+                 0.))
+           (list double int '* '*))))
+   (set! step-brain (lambda (brain-state h brain)
+                      (when vision-input
+                        (let ((inputs (map (lambda (i)
+                                             (vision-input 0. i))
+                                           (iota sensor-count 1))))
+                          (format #t "inputs ~a~%" inputs)
+                          #f)
+                        ;(set! motor 1.)
+                        #f)
+                      #t))))
 
-(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions make-effector-function reset-camera)
+
+(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions reset-camera)
