@@ -1,0 +1,380 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 9.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     12382,        371]
+NotebookOptionsPosition[     10943,        317]
+NotebookOutlinePosition[     11301,        333]
+CellTagsIndexPosition[     11258,        330]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"results12", " ", "=", " ", 
+   RowBox[{"Import", "[", "\"\<results-12.m\>\"", "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.588615772262821*^9, 3.588615783888098*^9}, 
+   3.588616609133185*^9}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"results12hand", " ", "=", " ", 
+   RowBox[{"Import", "[", "\"\<results-12-hand.m\>\"", "]"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.588615772262821*^9, 3.588615783888098*^9}, {
+  3.588616609133185*^9, 3.588616617356854*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"results13", " ", "=", " ", 
+   RowBox[{"Import", "[", "\"\<results-13.m\>\"", "]"}]}], ";"}]], "Input",
+ CellChangeTimes->{{3.588615772262821*^9, 3.588615783888098*^9}, {
+  3.5886162344059067`*^9, 3.588616239234681*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"results13hand", " ", "=", " ", 
+   RowBox[{"Import", "[", "\"\<results-13-hand.m\>\"", "]"}]}], 
+  ";"}]], "Input",
+ CellChangeTimes->{{3.588615772262821*^9, 3.588615783888098*^9}, {
+  3.5886162344059067`*^9, 3.588616239234681*^9}, {3.588616593722555*^9, 
+  3.588616600200005*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"results12", "[", 
+  RowBox[{"[", 
+   RowBox[{"1", ",", "1"}], "]"}], "]"}]], "Input",
+ CellChangeTimes->{{3.588615798635906*^9, 3.5886158064956837`*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+  "0.0912133301462818`", ",", "0.00500182694489689`", ",", 
+   "0.05350188192789912`", ",", "0.04252624620305295`"}], "}"}]], "Output",
+ CellChangeTimes->{{3.588615803966909*^9, 3.588615806796358*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Partition", "[", 
+  RowBox[{"%", ",", " ", "2"}], "]"}]], "Input",
+ CellChangeTimes->{{3.588615812761133*^9, 3.588615820222908*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{"0.0912133301462818`", ",", "0.00500182694489689`"}], "}"}], ",", 
+   
+   RowBox[{"{", 
+    RowBox[{"0.05350188192789912`", ",", "0.04252624620305295`"}], "}"}]}], 
+  "}"}]], "Output",
+ CellChangeTimes->{3.588615820665612*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Norm", "[", "%", "]"}]], "Input",
+ CellChangeTimes->{{3.5886158253605537`*^9, 3.5886158295501623`*^9}}],
+
+Cell[BoxData["0.1091873543819812`"], "Output",
+ CellChangeTimes->{3.5886158299651337`*^9}]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"GenomeToArray", "[", "genome_", "]"}], " ", ":=", " ", 
+  RowBox[{"Partition", "[", 
+   RowBox[{"genome", ",", " ", "2"}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.588615844792674*^9, 3.5886158598460207`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ResultToPlot", "[", 
+   RowBox[{"genome_", ",", " ", "fitness_"}], "]"}], " ", ":=", " ", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"Norm", "[", 
+     RowBox[{"GenomeToArray", "[", "genome", "]"}], "]"}], ",", " ", 
+    RowBox[{"Max", "[", "fitness", "]"}]}], "}"}]}]], "Input",
+ CellChangeTimes->{{3.588615893723762*^9, 3.588615936979988*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"resultsToPlot", "[", "results_", "]"}], " ", ":=", " ", 
+  RowBox[{"Map", "[", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"ResultToPlot", "[", 
+      RowBox[{
+       RowBox[{"#", "[", 
+        RowBox[{"[", "1", "]"}], "]"}], ",", " ", 
+       RowBox[{"#", "[", 
+        RowBox[{"[", "2", "]"}], "]"}]}], "]"}], "&"}], ",", " ", "results"}],
+    "]"}]}]], "Input",
+ CellChangeTimes->{{3.588615941304928*^9, 3.588615967381448*^9}}],
+
+Cell[BoxData[
+ RowBox[{"Clear", "[", "plotResults", "]"}]], "Input",
+ CellChangeTimes->{{3.588616781310219*^9, 3.588616783444425*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"plotResults", "[", 
+   RowBox[{"results_", ",", "  ", 
+    RowBox[{"opts", ":", 
+     RowBox[{"OptionsPattern", "[", "]"}]}]}], "]"}], " ", ":=", " ", 
+  RowBox[{"ListPlot", "[", 
+   RowBox[{
+    RowBox[{"resultsToPlot", "[", "results", "]"}], ",", " ", "opts", ",", 
+    " ", 
+    RowBox[{"GridLines", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", "0", "}"}], ",", 
+       RowBox[{"{", "28", "}"}]}], "}"}]}], ",", " ", 
+    RowBox[{"AxesOrigin", " ", "\[Rule]", " ", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "0.1"}], ",", "0"}], "}"}]}], ",", 
+    RowBox[{"AxesLabel", " ", "\[Rule]", " ", 
+     RowBox[{"{", 
+      RowBox[{
+      "\"\<||I - I'\!\(\*SubscriptBox[\(||\), \(1\)]\)\>\"", ",", " ", 
+       "\"\<max(error)\>\""}], "}"}]}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.588616245804843*^9, 3.5886162601558933`*^9}, {
+   3.588616398393306*^9, 3.588616424969307*^9}, {3.5886166794979763`*^9, 
+   3.588616696792782*^9}, {3.5886167681254272`*^9, 3.588616770597324*^9}, 
+   3.588617951455916*^9}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Dynamic", "[", 
+  RowBox[{"plotResults", "[", 
+   RowBox[{"results12", ",", " ", 
+    RowBox[{
+    "PlotLabel", " ", "\[Rule]", " ", 
+     "\"\<Perturbed Identity Sandwich, 2 Pendulum\>\""}]}], "]"}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.588616433662142*^9, 3.588616463198422*^9}, {
+  3.5886168106829844`*^9, 3.588616844082137*^9}}],
+
+Cell[BoxData[
+ DynamicBox[ToBoxes[
+   $CellContext`plotResults[$CellContext`results12, PlotLabel -> 
+    "Perturbed Identity Sandwich, 2 Pendulum"], StandardForm],
+  ImageSizeCache->{360., {110., 114.}}]], "Output",
+ CellChangeTimes->{{3.588616438047463*^9, 3.588616463668303*^9}, 
+   3.5886167755997972`*^9, {3.588616831952303*^9, 3.5886168447488213`*^9}}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Dynamic", "[", 
+  RowBox[{"plotResults", "[", 
+   RowBox[{"results12hand", ",", " ", 
+    RowBox[{"AxesLabel", " ", "\[Rule]", " ", 
+     RowBox[{"{", 
+      RowBox[{
+      "\"\<||H - H'\!\(\*SubscriptBox[\(||\), \(1\)]\)\>\"", ",", " ", 
+       "\"\<max(error)\>\""}], "}"}]}], ",", " ", 
+    RowBox[{
+    "PlotLabel", " ", "\[Rule]", " ", 
+     "\"\<Perturbed Hand Coded Sandwich, 2 Pendulum\>\""}]}], "]"}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.588616433662142*^9, 3.588616463198422*^9}, {
+  3.5886166328742237`*^9, 3.588616635664206*^9}, {3.5886167505423393`*^9, 
+  3.588616751246813*^9}, {3.5886168644011517`*^9, 3.5886168699456863`*^9}}],
+
+Cell[BoxData[
+ DynamicBox[ToBoxes[
+   $CellContext`plotResults[$CellContext`results12hand, 
+    AxesLabel -> {
+     "||H - H'\!\(\*SubscriptBox[\(||\), \(1\)]\)", "max(error)"}, PlotLabel -> 
+    "Perturbed Hand Coded Sandwich, 2 Pendulum"], StandardForm],
+  ImageSizeCache->{360., {107., 112.}}]], "Output",
+ CellChangeTimes->{
+  3.5886166360198402`*^9, {3.588616752517591*^9, 3.5886167739328403`*^9}, 
+   3.5886168966484737`*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Dynamic", "[", 
+  RowBox[{"plotResults", "[", 
+   RowBox[{"results13", ",", " ", 
+    RowBox[{
+    "PlotLabel", " ", "\[Rule]", " ", 
+     "\"\<Perturbed Identity Sandwich, 1 Pendulum\>\""}]}], "]"}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.588616262956805*^9, 3.588616266667506*^9}, {
+  3.588616454038864*^9, 3.588616457918586*^9}, {3.58861687424905*^9, 
+  3.588616879240773*^9}}],
+
+Cell[BoxData[
+ DynamicBox[ToBoxes[
+   $CellContext`plotResults[$CellContext`results13, PlotLabel -> 
+    "Perturbed Identity Sandwich, 1 Pendulum"], StandardForm],
+  ImageSizeCache->{360., {110., 114.}}]], "Output",
+ CellChangeTimes->{
+  3.588616267107777*^9, 3.588616402833981*^9, {3.588616450432701*^9, 
+   3.588616458363886*^9}, 3.588616894481873*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"Dynamic", "[", 
+  RowBox[{"plotResults", "[", 
+   RowBox[{"results13hand", ",", " ", 
+    RowBox[{"AxesLabel", " ", "\[Rule]", " ", 
+     RowBox[{"{", 
+      RowBox[{
+      "\"\<||H - H'\!\(\*SubscriptBox[\(||\), \(1\)]\)\>\"", ",", " ", 
+       "\"\<max(error)\>\""}], "}"}]}], ",", " ", 
+    RowBox[{
+    "PlotLabel", " ", "\[Rule]", " ", 
+     "\"\<Perturbed Hand Coded Sandwich, 1 Pendulum\>\""}]}], "]"}], 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.588616262956805*^9, 3.588616266667506*^9}, {
+  3.588616454038864*^9, 3.588616457918586*^9}, {3.588616621994645*^9, 
+  3.588616624573752*^9}, {3.5886167088077106`*^9, 3.588616740423126*^9}, {
+  3.588616882536929*^9, 3.5886168918162394`*^9}}],
+
+Cell[BoxData[
+ DynamicBox[ToBoxes[
+   $CellContext`plotResults[$CellContext`results13hand, 
+    AxesLabel -> {
+     "||H - H'\!\(\*SubscriptBox[\(||\), \(1\)]\)", "max(error)"}, PlotLabel -> 
+    "Perturbed Hand Coded Sandwich, 1 Pendulum"], StandardForm],
+  ImageSizeCache->{360., {107., 112.}}]], "Output",
+ CellChangeTimes->{
+  3.588616625052876*^9, {3.5886167155185337`*^9, 3.588616741031968*^9}, 
+   3.588616892374785*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"GraphicsGrid", "[", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"%104", ",", " ", "%107"}], "}"}], ",", "\[IndentingNewLine]", 
+    RowBox[{"{", 
+     RowBox[{"%106", ",", " ", "%105"}], "}"}]}], "}"}], "]"}]], "Input",
+ CellChangeTimes->{{3.588616900822538*^9, 3.588616932406872*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, {{InsetBox[
+      DynamicBox[ToBoxes[
+        $CellContext`plotResults[$CellContext`results12, PlotLabel -> 
+         "Perturbed Identity Sandwich, 2 Pendulum"], TraditionalForm],
+       ImageSizeCache->{305., {0., 305.}}], {192., -192.}, {
+      Center, Center}, {360., 360.}], InsetBox[
+      DynamicBox[ToBoxes[
+        $CellContext`plotResults[$CellContext`results12hand, 
+         AxesLabel -> {
+          "||H - H'\!\(\*SubscriptBox[\(||\), \(1\)]\)", "max(error)"}, 
+         PlotLabel -> "Perturbed Hand Coded Sandwich, 2 Pendulum"], 
+        TraditionalForm],
+       ImageSizeCache->{305., {0., 305.}}], {576., -192.}, {
+      Center, Center}, {360., 360.}]}, {InsetBox[
+      DynamicBox[ToBoxes[
+        $CellContext`plotResults[$CellContext`results13, PlotLabel -> 
+         "Perturbed Identity Sandwich, 1 Pendulum"], TraditionalForm],
+       ImageSizeCache->{305., {0., 305.}}], {192., -576.}, {
+      Center, Center}, {360., 360.}], InsetBox[
+      DynamicBox[ToBoxes[
+        $CellContext`plotResults[$CellContext`results13hand, 
+         AxesLabel -> {
+          "||H - H'\!\(\*SubscriptBox[\(||\), \(1\)]\)", "max(error)"}, 
+         PlotLabel -> "Perturbed Hand Coded Sandwich, 1 Pendulum"], 
+        TraditionalForm],
+       ImageSizeCache->{305., {0., 305.}}], {576., -576.}, {
+      Center, Center}, {360., 360.}]}}, {}},
+  ContentSelectable->True,
+  ImageSize->{631.640625, Automatic},
+  PlotRangePadding->{6, 5}]], "Output",
+ CellChangeTimes->{{3.588616922956745*^9, 3.5886169328917093`*^9}}]
+}, Open  ]]
+},
+WindowSize->{740, 752},
+WindowMargins->{{Automatic, 290}, {Automatic, 39}},
+FrontEndVersion->"9.0 for Mac OS X x86 (32-bit, 64-bit Kernel) (November 20, \
+2012)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[557, 20, 230, 5, 28, "Input"],
+Cell[790, 27, 265, 6, 28, "Input"],
+Cell[1058, 35, 255, 5, 28, "Input"],
+Cell[1316, 42, 316, 7, 28, "Input"],
+Cell[CellGroupData[{
+Cell[1657, 53, 177, 4, 28, "Input"],
+Cell[1837, 59, 241, 5, 28, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2115, 69, 156, 3, 28, "Input"],
+Cell[2274, 74, 295, 9, 28, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2606, 88, 127, 2, 28, "Input"],
+Cell[2736, 92, 90, 1, 28, "Output"]
+}, Open  ]],
+Cell[2841, 96, 244, 5, 28, "Input"],
+Cell[3088, 103, 378, 9, 28, "Input"],
+Cell[3469, 114, 460, 13, 28, "Input"],
+Cell[3932, 129, 134, 2, 28, "Input"],
+Cell[4069, 133, 1072, 27, 65, "Input"],
+Cell[CellGroupData[{
+Cell[5166, 164, 361, 9, 46, "Input"],
+Cell[5530, 175, 357, 6, 239, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5924, 186, 672, 15, 47, "Input"],
+Cell[6599, 203, 431, 9, 234, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7067, 217, 407, 10, 46, "Input"],
+Cell[7477, 229, 354, 7, 239, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7868, 241, 717, 16, 47, "Input"],
+Cell[8588, 259, 427, 9, 234, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9052, 273, 325, 8, 46, "Input"],
+Cell[9380, 283, 1547, 31, 647, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
