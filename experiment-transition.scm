@@ -45,7 +45,7 @@
   (succeeded? #:accessor exp:succeeded? #:init-value #f))
 
 (define-class <experiment-fode->bullet-trial> (<experiment-transition-trial>)
-  (mc-genome #:getter exp:mc-genome #:init-keyword #:mc-genome) ;; minimal cognition genome
+  (mc-genome #:accessor exp:mc-genome #:init-keyword #:mc-genome) ;; minimal cognition genome
   (transition-params #:accessor exp:transition-params #:init-keyword #:transition-params)
   )
 

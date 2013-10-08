@@ -39,7 +39,9 @@
  (camera)
  (optimize-transition)
  (experiment-transition)
- (eval-robot))
+ (eval-robot)
+ (brain)
+ )
 
 (set! physics-class <fode-physics>)
 ;(define physics-class <bullet-physics>)
@@ -78,10 +80,10 @@
 (define-key global-map (kbd "c") 'cycle-physics)
 
 
-(define ctrnn (make-brain))
-(define ctrnn-state (make-brain-state ctrnn))
+(define ctrnn (make <ctrnn-brain>))
+;; (define ctrnn-state (make-brain-state ctrnn))
 
-(define init-ctrnn-state (make-ctrnn-state ctrnn))
+;; (define init-ctrnn-state (make-ctrnn-state ctrnn))
 ;; XXX Let's not randomize just yet.
 ;(randomize-ctrnn-state! init-ctrnn-state)
 
@@ -134,8 +136,6 @@
   (make-unified-procedure double 
                           fode:c-ctrnn-effector
                           (list double int (list '* (bytevector->pointer ctrnn-state)))))
-
-
 
 
 ;; func-proc no longer works.
@@ -365,7 +365,7 @@
         (when #t #;(= 0 (mod tick-count update-ctrnn-freq))
           #;(if draw-display?
               (for-each (lambda (actor) (remove-actor scene actor)) vision-line-actors))
-          (step-brain ctrnn-state h ctrnn)))
+          (step-brain! ctrnn h)))
       (if draw-display?
           (draw-physics scene fode-state))
       
@@ -516,9 +516,9 @@
 (set! make-vision-func make-current-vision-input)
 
 (define-interactive (reset-fode)
-  (genome->ctrnn current-genome ctrnn)
+  (init-brain-from-genome! ctrnn current-genome)
+  ;(genome->ctrnn current-genome ctrnn)
   ;(randomize-ctrnn-state! ctrnn-state)
-  (array-copy! init-ctrnn-state ctrnn-state)
   (undraw-vision-lines)
   (when fode
     (undraw-physics (current-scene) fode)
@@ -526,17 +526,18 @@
   (set! fode (make physics-class
                #:object-count body-count 
                #:effector-func 
-               (make-effector-func ctrnn-state)
+               (make-brain-effector ctrnn)
+               ;(make-effector-func ctrnn-state)
                
                ;; XXX I broke the old interface.  Now it _requires_ a unified-procedure.
                ;; Not what I intended.
-#;               (make-unified-procedure 
-                 double 
-;               go-nowhere
-;                 go-left
-                 go-right
-                 (list double int '*))
-               
+#;
+               (make-unified-procedure 
+                double 
+                                        ;               go-nowhere
+                go-left
+                                        ;               go-right
+                (list double int '*))
                ))
   
   (set! fode-state (fix-physics fode))
@@ -545,25 +546,33 @@
   (set! vision-line-actors #f))
 
 (define (go-right t i . rest)
+  #;(format #t "GO RIGHT ~a~%" i)
   (if (= i 1)
       1.0
-      -1.0))
+      0.0))
 
 (define (go-left t i . rest)
-  ;(format #t "GO LEFT~%")
+  #;(format #t "GO LEFT ~a~%" i)
   (if (= i 1)
       0.0 ;; or -1.0
       1.0))
 
-(define (go-nowhere t i)
+(define (go-nowhere t i . rest)
   0.)
+
+(define (go-nowhere* t i . rest)
+ (if (= i 1)
+     1.0 ;; or -1.0
+     1.0))
 
 
 (define-interactive (randomize-brain)
   (randomize-genome! current-genome)
-  (genome->ctrnn current-genome ctrnn)
+  ;(genome->ctrnn current-genome ctrnn)
+  (init-brain-from-genome! ctrnn current-genome)
   (set-brain-input! ctrnn (make-current-vision-input))
-  (randomize-ctrnn-state! ctrnn-state))
+  #;(randomize-ctrnn-state! ctrnn-state)
+  )
 
 (define-interactive (reset-camera)
   (set-parameter! 'camera-position (vector 0 (/ max-height 2) 300))
@@ -917,34 +926,35 @@ given tasks."
                                              continue-search?)
       (list results gen-count eval-count))))
 
+#;
 (define-interactive (hand-made-brain)
   (let ((motor 0.)
         (vision-input #f))
-   (set! make-brain (lambda args 
-                      #t))
-   (set! make-brain-state (lambda args 
-                            (make-ctrnn-state (make-n-ctrnn node-count))))
-   (set! set-brain-input! (lambda (brain input)
-                           (set! vision-input input)))
-   (set! make-effector-func 
-         (lambda (brain)
-          (make-unified-procedure
-           double
-           (lambda (t i context other-context)
-             (if (= i 1)
-                 motor 
-                 0.))
-           (list double int '* '*))))
-   (set! step-brain (lambda (brain-state h brain)
-                      (when vision-input
-                        (let ((inputs (map (lambda (i)
-                                             (vision-input 0. i))
-                                           (iota sensor-count 1))))
-                          (format #t "inputs ~a~%" inputs)
-                          #f)
-                        ;(set! motor 1.)
-                        #f)
-                      #t))))
+    (set! make-brain (lambda args 
+                       #t))
+    (set! make-brain-state (lambda args 
+                             (make-ctrnn-state (make-n-ctrnn node-count))))
+    (set! set-brain-input! (lambda (brain input)
+                             (set! vision-input input)))
+    (set! make-effector-func 
+          (lambda (brain)
+            (make-unified-procedure
+             double
+             (lambda (t i context other-context)
+               (if (= i 1)
+                   motor 
+                   0.))
+             (list double int '* '*))))
+    (set! step-brain (lambda (brain-state h brain)
+                       (when vision-input
+                         (let ((inputs (map (lambda (i)
+                                              (vision-input 0. i))
+                                            (iota sensor-count 1))))
+                           (format #t "inputs ~a~%" inputs)
+                           #f)
+                                        ;(set! motor 1.)
+                         #f)
+                       #t))))
 
 
-(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions reset-camera)
+(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions reset-camera make-effector-func-unified make-c-effector-func)

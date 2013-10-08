@@ -1,0 +1,27 @@
+#!/bin/bash
+# run-random-genomes
+if [ -z "$1" ]; then
+    count=1000;
+else
+    count="$1";
+fi
+if [ -z "$2" ]; then
+    dir=results-r1
+else
+    dir="$2";
+fi
+mkdir -p "$dir";
+for physics in "fode-physics" "bullet-physics" "bullet-physics-car" "bullet-physics-skateboard-1" "bullet-physics-skateboard-2"; do
+    out="$dir/random-$physics.m"
+    if [ ! -f "$out" ]; then
+        eracs -s plot-random-genomes -p "<$physics>" -s results-13/f2b2-2.dat $count "$out";
+    else
+        echo "skipping $out";
+    fi
+    out="$dir/random-$physics-sandwich.m"
+    if [ ! -f "$dir/random-$physics-sandwich.m" ]; then
+        eracs -s plot-random-genomes -p "<$physics>" results-13/f2b2-2.dat $count "$out"
+    else
+        echo "skipping $out";
+    fi
+done

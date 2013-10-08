@@ -54,18 +54,17 @@
   (list->vector (map + (vector->list A) (vector->list B))))
 
 (define (plot-sandwich exp random-list outfile count I)
-  (let* (#;(I #(1. 0. 0. 1.))
-         (results 
-          (append-map! (lambda (random) 
-             (map (lambda (i)
-                    (let* ((R (random-matrix random))
-                           (I* (matrix+ I R))
-                           (fitness (begin (substitute-sandwich exp I*)
-                                           (run-individual exp 0))))
-                      (list R fitness)))
-                  (iota count)))
-                       random-list
-                       )))
+  (let ((results 
+         (append-map! 
+          (lambda (random) 
+            (map (lambda (i)
+                   (let* ((R (random-matrix random))
+                          (I* (matrix+ I R))
+                          (fitness (begin (substitute-sandwich exp I*)
+                                          (run-individual exp 0))))
+                     (list R fitness)))
+                 (iota count)))
+          random-list)))
     (call-with-output-file outfile 
       (lambda (port)
         (format port "~a" (sexp->mathematica results))))))
