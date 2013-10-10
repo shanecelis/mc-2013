@@ -16,6 +16,8 @@
   #:use-module (fitness)
   #:use-module (nsga-ii)
   #:use-module (mathematica-plot plot)
+  #:use-module (brain)
+  #:use-module (float-equality)
   #:export (
             left-IC 
             right-IC 
@@ -104,37 +106,47 @@
   (if (exp:succeeded? exp) 
       (run-individual exp 0)))
 
-
-
 (define-method (run-individual (exp <experiment-transition-trial>) index)
   (let ((recalc-fitness (left-right-task (car (list-ref (exp:results exp) index))
-                                         (map make-apply-IC (exp:ICs exp)))))
+                                         (map make-apply-IC (exp:ICs exp))))
+        (recorded-fitness (cdr (list-ref (exp:results exp) index))))
     (format #t "Recorded fitness ~a and recalculated fitness ~a.~%" 
-            (cdr (list-ref (exp:results exp) index))
+            recorded-fitness
             recalc-fitness)
+    (unless (=? recorded-fitness recalc-fitness)
+      (format (current-error-port) "Recorded and recalculated are not the same!~%")
+      #;(throw 'blah))
     recalc-fitness))
 
 (define-method (run-individual (exp <experiment-fode->bullet-trial>) index)
-  (let ((recalc-fitness (left-right-task (exp:mc-genome exp) 
-                                         (map make-apply-IC (exp:ICs exp))
-                                         (car (list-ref (exp:results exp) index)))))
-    (format #t "Recorded fitness ~a and recalculated fitness ~a.~%" 
-            (cdr (list-ref (exp:results exp) index))
-            recalc-fitness)
-    recalc-fitness))
+  (let ((ctrnn (make <ctrnn-brain>))
+        (transition-genome (car (list-ref (exp:results exp) index))))
+    (init-brain-from-genome! ctrnn (exp:mc-genome exp))
+    (set! brain-class (list <matrix-sandwich>
+                            #:old-brain ctrnn
+                            #:transition-params 
+                            (eval (exp:transition-params exp) 
+                                  (interaction-environment))
+                            ;;#:matrix-sandwich transition-genome
+                            ))
+    (next-method)))
 
 (define-method (install-individual (exp <experiment-transition-trial>) index)
   (set! current-genome (car (list-ref (exp:results exp) index)))
   (set! initial-conditions (map make-apply-IC (exp:ICs exp))))
 
 (define-method (install-individual (exp <experiment-fode->bullet-trial>) index)
-  (set! current-genome (exp:mc-genome exp))
-  (set! make-effector-func 
-        (make-make-transition-effector-func
-         ;; XXX this eval shouldn't be here.  It needs to be fixed on unserialization
-         (eval (exp:transition-params exp) (interaction-environment))
-         (car (list-ref (exp:results exp) index)) #;transition-genome
-         ))
+  ;(set! current-genome (exp:mc-genome exp))
+  ;(format #t "HERE!!!!!~%")
+  (let ((ctrnn (make <ctrnn-brain>))
+        (transition-genome (car (list-ref (exp:results exp) index))))
+    (init-brain-from-genome! ctrnn (exp:mc-genome exp))
+    (set! current-genome transition-genome)
+    (set! brain-class (list <matrix-sandwich>
+                          #:old-brain ctrnn
+                          #:transition-params 
+                          (eval (exp:transition-params exp) (interaction-environment))
+                          #:matrix-sandwich transition-genome)))
   (set! initial-conditions (map make-apply-IC (exp:ICs exp))))
 
 (define-method (run-experiment! (exp <experiment-fode->bullet-trial>))
@@ -149,13 +161,20 @@
   (let ((eval-count 0)
         (generation-count 0)
         (myresults #f)
-        (start-time (emacsy-time)))
+        (start-time (emacsy-time))
+        (ctrnn (make <ctrnn-brain>)))
    (define-fitness
      ((minimize "left distance")
       (minimize "right distance"))
      (fitness-fn genome)
      (incr! eval-count)
-     (left-right-task (exp:mc-genome exp) (map make-apply-IC (exp:ICs exp)) genome))
+     (left-right-task genome (map make-apply-IC (exp:ICs exp))))
+   (init-brain-from-genome! ctrnn (exp:mc-genome exp))
+   (set! brain-class (list <matrix-sandwich>
+                           #:old-brain ctrnn
+                           #:transition-params 
+                           (eval (exp:transition-params exp) 
+                                 (interaction-environment))))
    (set! myresults (nsga-ii-search fitness-fn
                     #:gene-count (tp:gene-count (exp:transition-params exp))
                     #:objective-count 2

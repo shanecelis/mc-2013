@@ -79,14 +79,10 @@
 
 (define-key global-map (kbd "c") 'cycle-physics)
 
-
-(define ctrnn (make <ctrnn-brain>))
-;; (define ctrnn-state (make-brain-state ctrnn))
-
-;; (define init-ctrnn-state (make-ctrnn-state ctrnn))
-;; XXX Let's not randomize just yet.
-;(randomize-ctrnn-state! init-ctrnn-state)
-
+;(set! brain-class (list <procedure-brain> #:procedure go-right))
+;(set! brain-class (list <procedure-brain> #:procedure go-left))
+;(set! brain-class <ctrnn-brain>)
+(define ctrnn (make-brain))
 
 ;; https://gist.github.com/valvallow/413146
 (define-syntax dotimes
@@ -123,8 +119,9 @@
   (lambda (t i . rest)
     (let* ((first-effector-index (1+ sensor-count))
            (state (: ctrnn-state @ (first-effector-index + (i - 1)))))
-      #;(format #t "ctrnn state ~a~%" state)
-      (tanh state))))
+      ;(format #t "ctrnn state ~a~%" state)
+      #;(tanh state)
+      (/ 1. (+ 1. (exp (- state)))))))
 
 (define (make-effector-func-unified ctrnn-state)
   (let ((proc (make-effector-func-proc ctrnn-state)))
@@ -140,7 +137,7 @@
 
 ;; func-proc no longer works.
 ;(define make-effector-func make-effector-func-proc)
-(set! make-effector-func make-effector-func-unified)
+;(set! make-effector-func make-effector-func-unified)
 
 ;(define make-effector-func make-c-effector-func)
 
@@ -516,6 +513,7 @@
 (set! make-vision-func make-current-vision-input)
 
 (define-interactive (reset-fode)
+  (set! ctrnn (make-brain))
   (init-brain-from-genome! ctrnn current-genome)
   ;(genome->ctrnn current-genome ctrnn)
   ;(randomize-ctrnn-state! ctrnn-state)
@@ -531,7 +529,8 @@
                
                ;; XXX I broke the old interface.  Now it _requires_ a unified-procedure.
                ;; Not what I intended.
-#;
+
+               #;
                (make-unified-procedure 
                 double 
                                         ;               go-nowhere
@@ -544,27 +543,6 @@
   (choose-initial-conditions fode fode-state)
   (set-brain-input! ctrnn (make-current-vision-input))
   (set! vision-line-actors #f))
-
-(define (go-right t i . rest)
-  #;(format #t "GO RIGHT ~a~%" i)
-  (if (= i 1)
-      1.0
-      0.0))
-
-(define (go-left t i . rest)
-  #;(format #t "GO LEFT ~a~%" i)
-  (if (= i 1)
-      0.0 ;; or -1.0
-      1.0))
-
-(define (go-nowhere t i . rest)
-  0.)
-
-(define (go-nowhere* t i . rest)
- (if (= i 1)
-     1.0 ;; or -1.0
-     1.0))
-
 
 (define-interactive (randomize-brain)
   (randomize-genome! current-genome)
@@ -684,30 +662,21 @@
   (left-right-task
    #:optional 
    (genome current-genome)
-   (my-initial-conditions initial-conditions)
-   (transition-genome #f))
+   (my-initial-conditions initial-conditions))
   
-  (let* ((initial-conditions (run-if-thunkable my-initial-conditions))
-         (trials (length initial-conditions))
-         (fitnesses '())
-         (last-make-effector-func make-effector-func)
-         )
-    (when transition-genome
-      (set! make-effector-func 
-            (make-make-transition-effector-func
-             (make-transition-params 2 2 #f)
-             transition-genome)))
+  (let* ((initial-conditions* (run-if-thunkable my-initial-conditions))
+         (trials (length initial-conditions*))
+         (fitnesses '()))
     (do ((i 1 (1+ i)))
         ((> i trials))
       (cons! (vector-ref (beer-selective-attention 
                           genome
-                          (list-ref initial-conditions (1- i))) 
+                          (list-ref initial-conditions* (1- i))) 
                          0) 
              fitnesses))
-    (when transition-genome
-      (set! make-effector-func last-make-effector-func))
    (let ((total-fitness (list->vector fitnesses)))
-     (message "Fitness ~a." total-fitness)
+     (message "Fitness ~a for genome ~a." total-fitness genome)
+     (format #t "Fitness ~a for genome ~a.~%" total-fitness genome)
      total-fitness)))
 
 (define last-fitness-func #f) 
@@ -727,6 +696,7 @@
 (define (any-individual-succeeded? generation results)
   "Returns true if we haven't found a successful candidate.  Input is (rank genome objective)."
   (format #t "Continue? ~a~%" generation)
+  ;(format #t "results ~a ~%" results)
   (any (compose individual-succeeded? caddr) results))
 
 (define (get-results-that-succeeded results)
@@ -850,7 +820,8 @@ objective. Genome and fitness are #f64 arrays."
     (set! last-results results)
 
     (set! current-genome (caar results))
-    (genome->ctrnn current-genome ctrnn)
+    (init-brain-from-genome! ctrnn current-genome)
+    ;(genome->ctrnn current-genome ctrnn)
     (reset-fode)
     (message "Feasible fitnesses ~a" (map cdr results))
     (values results generation-count eval-count)
@@ -926,7 +897,7 @@ given tasks."
                                              continue-search?)
       (list results gen-count eval-count))))
 
-#;
+#|
 (define-interactive (hand-made-brain)
   (let ((motor 0.)
         (vision-input #f))
@@ -955,6 +926,18 @@ given tasks."
                                         ;(set! motor 1.)
                          #f)
                        #t))))
+|#  
+
+(define-interactive (test-zero-genome)
+  (array-fill! current-genome 1.)
+  (init-brain-from-genome! ctrnn current-genome)
+  (let* ((ctrnn-inst ((@@ (brain) ctrnn) ctrnn)))
+   (message "CTRNN weight ~a~%" (weights ctrnn-inst))
+   (message "CTRNN time-constant ~a~%" (time-constant ctrnn-inst))
+   (message "CTRNN bias ~a~%" (bias ctrnn-inst))
+   (message "CTRNN gain ~a~%" (gain ctrnn-inst))
+   )
+  )
 
 
 (export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions reset-camera make-effector-func-unified make-c-effector-func)

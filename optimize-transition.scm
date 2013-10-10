@@ -85,7 +85,7 @@
             (r_i (map (lambda (j) (array-ref genome j))
                       (iota in-count (* out-count (1- i)))))
             (out (apply + (map * r_i inputs))))
-       #;(format #t "CALLED input ~a out ~a~%" inputs out)
+       ;(format #t "CALLED input ~a out ~a with matrix ~a~%" inputs out genome)
        out))
    (list double int '*)))
 
