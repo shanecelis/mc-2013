@@ -132,7 +132,8 @@
 (define (make-c-effector-func ctrnn-state)
   (make-unified-procedure double 
                           fode:c-ctrnn-effector
-                          (list double int (list '* (bytevector->pointer ctrnn-state)))))
+                          (list double int 
+                                (list '* (bytevector->pointer ctrnn-state)))))
 
 
 ;; func-proc no longer works.
@@ -675,8 +676,10 @@
                          0) 
              fitnesses))
    (let ((total-fitness (list->vector fitnesses)))
-     (message "Fitness ~a for genome ~a." total-fitness genome)
-     (format #t "Fitness ~a for genome ~a.~%" total-fitness genome)
+     (message "Fitness ~a." total-fitness)
+     ;(message "Fitness ~a for genome ~a." total-fitness genome)
+
+     ;(format #t "Fitness ~a for genome ~a.~%" total-fitness genome)
      total-fitness)))
 
 (define last-fitness-func #f) 

@@ -22,11 +22,10 @@
     (sandwich (single-char #\s) (value #t))
     (sandwich-outfile (single-char #\o) (value #t))
     (sandwich-random (single-char #\r) (value #t))
-    
-    ))
+    (quit (single-char #\q) (value #f))))
 
 (define (usage)
-  (format (current-error-port) "usage: ~a [-p physics-class] [-s sandwich] [-o sandwich-out] [-r sandwich-random] <experiment.dat>~%" (car (program-arguments))))
+  (format (current-error-port) "usage: ~a [-q] [-p physics-class] [-s sandwich] [-o sandwich-out] [-r sandwich-random] <experiment.dat>~%" (car (program-arguments))))
 
 (define options (getopt-long args option-spec #:stop-at-first-non-option #t))
 
@@ -79,7 +78,10 @@
 
   (set! expmt (read-experiment (car args)))
   (if (option-ref options 'physics #f)
-      (set! physics-class (eval (option-ref options 'physics #f) (interaction-environment)))
+      (begin
+        (set! physics-class 
+              (eval (read-from-string (option-ref options 'physics #f)) (interaction-environment)))
+        (set! (exp:physics-class expmt) physics-class))
       (set! physics-class (exp:physics-class expmt)))
   (format #t "Physics class is ~a.~%" physics-class)
   (if (exp:succeeded? expmt)
@@ -99,19 +101,22 @@
                         ))
         (run-individual expmt 0)
         (install-individual expmt 0)
-        (exit 0)
+        (when (option-ref options 'quit #f)
+          (exit 0))
         )
       (begin 
         (format (current-error-port) "error: This experiment did not succeed.~%")
-        (exit 1)))
+        (exit 1)
+        ))
 
   (add-hook! emacsy-initialize-hook 
              (lambda ()
+               (format #t "Running initialize hook.")
                ;(toggle-pause)
-               ;(toggle-render)
-               (reset-fode)
+               (toggle-render)
+               ;(reset-fode)
                                         ;(set! eval-beer-robot eval-beer-robot-render)
-               ;;(left-right-task)
+               ;(left-right-task)
                (format #t "Fitness from experiment is ~a.~%" 
                        (cdar (exp:results expmt)))
                (format #t "Physics class is ~a.~%" physics-class)

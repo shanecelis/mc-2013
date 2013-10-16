@@ -87,7 +87,10 @@
             (out (apply + (map * r_i inputs))))
        ;(format #t "CALLED input ~a out ~a with matrix ~a~%" inputs out genome)
        out))
-   (list double int '*)))
+   (list double int '*)
+   #;
+   (list double int 
+         (list '* (vector-ref (unified-default-values effector) 2)))))
 
 (define make-effector-func-original #f)
 

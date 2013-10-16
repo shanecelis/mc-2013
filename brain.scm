@@ -93,8 +93,12 @@
       (throw 'step-ctrnn-error)))
 
 (define-method (make-brain-effector (brain <ctrnn-brain>))
-  #;(make-effector-func-unified (ctrnn-state brain))
-  (make-c-effector-func (ctrnn-state brain)))
+  (make-effector-func-unified (ctrnn-state brain))
+  #;
+  (let ((effector (make-c-effector-func (ctrnn-state brain))))
+    (format #t "CREATING c effector ~a ~a~%" effector (unified-default-values effector))
+                                        ;(throw 'blah)
+    effector))
 
 (define-method (init-brain-from-genome! (brain <ctrnn-brain>) genome)
   (genome->ctrnn genome (ctrnn brain))

@@ -11,9 +11,9 @@ else
     dir="$2";
 fi
 mkdir -p "$dir";
-fode_genome_file="results-14/f2b2-1g.dat";
-#for physics in "fode-physics" "bullet-physics" "bullet-physics-car" "bullet-physics-skateboard-1" "bullet-physics-skateboard-2"; do
-for physics in "fode-physics"; do
+fode_genome_file="results-15/f2b-4f.dat";
+for physics in "fode-physics" "bullet-physics" "bullet-physics-car" "bullet-physics-skateboard-1" "bullet-physics-skateboard-2"; do
+#for physics in "fode-physics"; do
     out="$dir/random-$physics.m"
     if [ ! -f "$out" ]; then
         eracs -s plot-random-genomes -p "<$physics>" "$fode_genome_file" $count "$out";
@@ -21,8 +21,8 @@ for physics in "fode-physics"; do
         echo "skipping $out";
     fi
     out="$dir/random-$physics-sandwich.m"
-    if [ ! -f "$dir/random-$physics-sandwich.m" ]; then
-        eracs -s plot-random-genomes -p "<$physics>" -s results-13/f2b2-2.dat $count "$out"
+    if [ ! -f "$out" ]; then
+        eracs -s plot-random-genomes -p "<$physics>" -s "$fode_genome_file" $count "$out"
     else
         echo "skipping $out";
     fi

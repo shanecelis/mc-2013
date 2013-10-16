@@ -1,0 +1,6 @@
+* Working on results-15
+** 4f is not using FODE with the sandwich. It has a leftward bias due to Bullet.
+** Bullet left-bias needs to be fixed.  It should not move when it starts.    
+** Running 4f-a-* with fode-physics and sandwich.  It should be symmetric.  It is.
+   The sandwich is not symmetric, that's ok because the CTRNN is
+   idiosyncratic.
