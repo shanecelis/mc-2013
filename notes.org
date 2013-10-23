@@ -3,4 +3,7 @@
 ** Bullet left-bias needs to be fixed.  It should not move when it starts.    
 ** Running 4f-a-* with fode-physics and sandwich.  It should be symmetric.  It is.
    The sandwich is not symmetric, that's ok because the CTRNN is
-   idiosyncratic.
+   idiosyncratic
+** Ran 4f-b which includes multiple vehicles.
+** Running 4f-c which has a range of 0.25.
+

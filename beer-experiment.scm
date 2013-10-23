@@ -377,7 +377,8 @@
       (when restart?
         ;; restart
         (next-IC)
-        (reset-fode)))
+        (reset-fode))
+      (cleanup-actors))
     (incr! tick-count)))
 
 (define last-vision-values '())
@@ -943,4 +944,5 @@ given tasks."
   )
 
 
-(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions reset-camera make-effector-func-unified make-c-effector-func)
+(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions reset-camera make-effector-func-unified make-c-effector-func undraw-vision-lines #;fode
+        )

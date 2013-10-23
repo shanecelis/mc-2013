@@ -10,19 +10,25 @@ if [ -z "$2" ]; then
 else
     dir="$2";
 fi
+
+if [ -z "$3" ]; then
+    range="1.0";
+else
+    range="$3";
+fi
 mkdir -p "$dir";
 fode_genome_file="results-15/f2b-4f.dat";
-for physics in "fode-physics" "bullet-physics" "bullet-physics-car" "bullet-physics-skateboard-1" "bullet-physics-skateboard-2"; do
-#for physics in "fode-physics"; do
+#for physics in "fode-physics" "bullet-physics" "bullet-physics-car" "bullet-physics-skateboard-1" "bullet-physics-skateboard-2"; do
+for physics in "fode-physics"; do
     out="$dir/random-$physics.m"
     if [ ! -f "$out" ]; then
-        eracs -s plot-random-genomes -p "<$physics>" "$fode_genome_file" $count "$out";
+        eracs -s plot-random-genomes -r "$range" -p "<$physics>" "$fode_genome_file" $count "$out";
     else
         echo "skipping $out";
     fi
     out="$dir/random-$physics-sandwich.m"
     if [ ! -f "$out" ]; then
-        eracs -s plot-random-genomes -p "<$physics>" -s "$fode_genome_file" $count "$out"
+        eracs -s plot-random-genomes -r "$range" -p "<$physics>" -s "$fode_genome_file" $count "$out"
     else
         echo "skipping $out";
     fi

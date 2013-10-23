@@ -75,12 +75,12 @@
       (lambda (port)
         (format port "~a" (sexp->mathematica results))))))
 
-(define (plot-random-genome outfile count)
+(define (plot-random-genome outfile count range)
   (let ((results 
          (map 
           (lambda (i)
             (let* ((I #(1. 0. 0. 1.))
-                   (R (random-vector 1. 
+                   (R (random-vector range
                                      (array-length (exp:mc-genome expmt))))
                    (fitness 
                     (begin 
@@ -89,8 +89,7 @@
                        expmt R)
                       (run-individual expmt 0))))
               (list R fitness)))
-          (iota count))
-         ))
+          (iota count))))
     (call-with-output-file outfile 
       (lambda (port)
         (format port "~a" (sexp->mathematica results))))))
@@ -112,12 +111,13 @@
   (format #t "Physics class is ~s.~%" physics-class)
   
   (let ((count (string->number (cadr args)))
-        (output (caddr args)))
+        (output (caddr args))
+        (range (read-from-string (option-ref options 'range "1.0"))))
     (format #t "count ~a~%" count)
+    
     (if (option-ref options 'use-sandwich #f)
-        (plot-random-sandwich output count 
-                              (read-from-string (option-ref options 'range "1.0")))
-        (plot-random-genome output count)))
+        (plot-random-sandwich output count range)
+        (plot-random-genome output count range)))
   (exit 0))
 
 (call-with-error-handling
