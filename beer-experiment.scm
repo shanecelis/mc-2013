@@ -64,7 +64,7 @@
              (func (vector-ref v i)))))
 
 (define temp (make-cycle
-              (list <fode-physics> <bullet-physics> <bullet-physics-car> <bullet-physics-car-ind> <bullet-physics-skateboard> <bullet-physics-skateboard-1> <bullet-physics-skateboard-2>)
+              (list <fode-physics> <bullet-physics> <bullet-physics-car> <bullet-physics-car-8-wheel> <bullet-physics-car-ind> <bullet-physics-skateboard> <bullet-physics-skateboard-1> <bullet-physics-skateboard-2>)
               (lambda (x)
                 (message "Switched to physics class ~a." x)
                 (set! physics-class x)
@@ -80,8 +80,9 @@
 (define-key global-map (kbd "c") 'cycle-physics)
 
 ;(set! brain-class (list <procedure-brain> #:procedure go-right))
+;(set! brain-class (list <procedure-brain> #:procedure go-right*))
 ;(set! brain-class (list <procedure-brain> #:procedure go-left))
-;(set! brain-class <ctrnn-brain>)
+(set! brain-class <ctrnn-brain>)
 (define ctrnn (make-brain))
 
 ;; https://gist.github.com/valvallow/413146
@@ -353,17 +354,28 @@
 
 (define-key eracs-mode-map (kbd "p") 'toggle-pause-fode)
 
+(define deferred-promises-queue (make-q))
+
+(define (defer-promise promise)
+  (enq! deferred-promises-queue promise))
+
+(define (run-promises)
+  (while (not (q-empty? deferred-promises-queue))
+    (let ((promise (deq! deferred-promises-queue)))
+      (force promise))))
+
 (define (fode-physics-tick)
   (let* ((scene (current-scene)) ;; This should be attached to the buffer.
          (restart? #t))
     (when  (and scene fode-state)
       (unless pause-fode?
-        (if (not (step-physics fode-state h))
-            (throw 'step-physics-error))
+        
         (when #t #;(= 0 (mod tick-count update-ctrnn-freq))
           #;(if draw-display?
               (for-each (lambda (actor) (remove-actor scene actor)) vision-line-actors))
-          (step-brain! ctrnn h)))
+          (step-brain! ctrnn h))
+        (if (not (step-physics fode-state h))
+            (throw 'step-physics-error)))
       (if draw-display?
           (draw-physics scene fode-state))
       
@@ -379,6 +391,7 @@
         (next-IC)
         (reset-fode))
       (cleanup-actors))
+    (run-promises)
     (incr! tick-count)))
 
 (define last-vision-values '())
@@ -540,10 +553,12 @@
                                         ;               go-right
                 (list double int '*))
                ))
+  (init-brain-state! ctrnn)
   
   (set! fode-state (fix-physics fode))
   (choose-initial-conditions fode fode-state)
-  (set-brain-input! ctrnn (make-current-vision-input))
+  ;(set-brain-input! ctrnn (make-current-vision-input))
+  (set-brain-input! ctrnn (make-vision-func #t fode-state))
   (set! vision-line-actors #f))
 
 (define-interactive (randomize-brain)
@@ -623,7 +638,8 @@
                                    #:begin-fn begin-func
                                    #:step-fn step-func 
                                    #:end-fn end-func))
-    (message "Fitness ~a." fitness)
+    (when (called-interactively?)
+     (message "Error (~{~1,1f~^, ~})" (vector->list fitness)))
     fitness))
 
 ;(define initial-conditions (list case-1-IC case-2-IC case-3-IC))
@@ -677,7 +693,8 @@
                          0) 
              fitnesses))
    (let ((total-fitness (list->vector fitnesses)))
-     (message "Fitness ~a." total-fitness)
+     (when (called-interactively?)
+       (message "Error (~{~1,1f~^, ~})" (vector->list total-fitness)))
      ;(message "Fitness ~a for genome ~a." total-fitness genome)
 
      ;(format #t "Fitness ~a for genome ~a.~%" total-fitness genome)
@@ -691,7 +708,7 @@
 
 (define (individual-succeeded? fitness)
   "Did the individual come in contact with the object."
-  (format #t "checking fitness ~a~%" fitness)
+  ;(format #t "checking fitness ~a~%" fitness)
   (every (lambda (i)
            (let ((distance (array-ref fitness i)))
              (<= distance successful-distance))) 
@@ -699,7 +716,7 @@
 
 (define (any-individual-succeeded? generation results)
   "Returns true if we haven't found a successful candidate.  Input is (rank genome objective)."
-  (format #t "Continue? ~a~%" generation)
+  ;(format #t "Continue? ~a~%" generation)
   ;(format #t "results ~a ~%" results)
   (any (compose individual-succeeded? caddr) results))
 
@@ -766,10 +783,13 @@
                     (map to-string fitness-functions)
                     ;:history* 'fitness-function
                     #:initial-input 
-                    (and last-fitness-func (to-string last-fitness-func))))))
+                    (and last-fitness-func (to-string last-fitness-func))
+                    #:history 'fitness-function
+                    ))))
    (max-generations 
     (read-from-string (read-from-minibuffer "Generation count: "
                                             ;:history* 'generation-count
+                                            #:history 'generation-count
                                             )))
    (seed-population (list current-genome))
    (continue-search? (compose not any-individual-succeeded?)))
@@ -812,22 +832,28 @@ objective. Genome and fitness are #f64 arrays."
                                             (incr! generation-count)
                                             (if continue-search?
                                              (apply continue-search? args)
-                                             #t)))))
+                                             #t))))
+         (error-kind "Feasible"))
     ;; Get rid of any duplicate individuals.
     #;(set! results (uniq results))
     (set! last-fitness-func fitness-fn)
+    (let ((filtered (get-results-that-succeeded results)))
+      (when (not (null? filtered))
+        (set! results filtered)
+        (set! error-kind "Successful")
+        ))
     (set! results (sort! results (lambda (a b)
                                    ;; XXX The < or > needs to be used
                                    ;; in reference to whether this is
                                    ;; being minimized or maximized.
                                    (< (: (cdr a) @ 0) (: (cdr b) @ 0)))))
+    
     (set! last-results results)
-
-    (set! current-genome (caar results))
-    (init-brain-from-genome! ctrnn current-genome)
-    ;(genome->ctrnn current-genome ctrnn)
+    (unless (null? results)
+      (set! current-genome (caar results))
+      (init-brain-from-genome! ctrnn current-genome))
     (reset-fode)
-    (message "Feasible fitnesses ~a" (map cdr results))
+    (message "~a errors: ~{(~{~1,1f~^, ~})~^, ~}" error-kind (map (compose array->list cdr) results))
     (values results generation-count eval-count)
     #;
     (when (called-interactively?) 
@@ -944,5 +970,5 @@ given tasks."
   )
 
 
-(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions reset-camera make-effector-func-unified make-c-effector-func undraw-vision-lines #;fode
+(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions reset-camera make-effector-func-unified make-c-effector-func undraw-vision-lines #;fode defer-promise
         )

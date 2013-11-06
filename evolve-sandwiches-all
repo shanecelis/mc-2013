@@ -1,0 +1,20 @@
+#!/bin/bash
+
+i=0
+j=0
+n=0
+for file in results-20/fode-physics-?.dat results-20/fode-physics-??.dat; do
+    n=$((n + 1));
+done
+for file in results-20/fode-physics-?.dat results-20/fode-physics-??.dat; do
+    if ./evolve-sandwiches results-20 '<bullet-physics-car>' 10 "$file"; then
+        i=$((i + 1));
+    fi
+    j=$((j + 1));
+    echo -n "evolve-sandwiches-all: "
+    ./test-summary $i $j $n
+done
+echo -n "evolve-sandwiches-all: "
+./test-summary $i $j $n  > results-20/evolve-all-sandwich-results.txt
+
+

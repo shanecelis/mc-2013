@@ -18,7 +18,7 @@
 (load "beer-experiment.scm")
 
 (define (main args)
-  (format #t "args ~a~%" args)
+  ;(format #t "args ~a~%" args)
   (call-with-error-handling
    (lambda ()
      (let ((argc (length args))
@@ -34,21 +34,26 @@
        (set! physics-class-arg (if (= 3 argc) 
                                    <bullet-physics-car>
                                    (eval (string->symbol (cadddr args)) (interaction-environment))))
-       (run-experiment filename physics-class-arg fode-expr-filename)))))
+       
+       (exit (if (exp:succeeded? (run-experiment filename physics-class-arg fode-expr-filename))
+                 0
+                 1))))))
 
 (define* (run-experiment filename physics-class-arg fode-expr-filename)
   (define exp-class <experiment-fode->bullet-trial>)
   (define fode-exp (read-experiment fode-expr-filename))
-  (define fode-genome (begin
-                        (when (null? (exp:results fode-exp))
-                            (format (current-error-port) "error: no successful results available in ~a.~%" fode-expr-filename)
-                            (exit 1))
-                          (caar (exp:results fode-exp))))
+  (define fode-genome 
+    (begin
+      (when (null? (exp:results fode-exp))
+        (format (current-error-port)
+                "error: no successful results available in ~a.~%" fode-expr-filename)
+        (exit 1))
+      (caar (exp:results fode-exp))))
   (define exp #f)
   (define trial-count 1) 
   (define (make-trial) 
     (make-instance exp-class 
-                   #:max-gen 50 
+                   #:max-gen 100 
                    #:physics-class 
                    physics-class-arg
                    #:mc-genome
@@ -66,4 +71,5 @@
 
   (analyze-data! exp)
 
-  (save-experiment exp filename))
+  (save-experiment exp filename)
+  exp)

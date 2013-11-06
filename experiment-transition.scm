@@ -205,11 +205,11 @@
          (succeeded (map (lambda (exp) (if (exp:succeeded? exp) 1. 0.)) exps)))
     
     (define (show-stats lst name)
-      (format #t "~a mean ~a std ~a~%" name (mean lst) (std lst)))
-    (show-stats gen-counts "gen-counts")
-    (show-stats eval-counts "eval-counts")
-    (show-stats wall-clock-times "wall-clock-times")
-    (show-stats succeeded "success")))
+      (format #t "~a~/ median ~1,2f~/ mean ~1,2f~/ ste ~1,2f~%" name (median lst) (mean lst) (ste lst)))
+    (show-stats gen-counts       "gen-counts          ")
+    (show-stats eval-counts      "eval-counts         ")
+    (show-stats wall-clock-times "wall-clock-times (s)")
+    (show-stats succeeded        "success             ")))
 
 (define-method (export-data (exp <experiment-transition-parent>) port)
   (let* ((exps (exp:child-experiments exp))

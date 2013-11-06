@@ -1,0 +1,50 @@
+#!/usr/bin/env guile \
+--debug -e main -s 
+!#
+(use-modules (experiment)
+             (experiment-gen-count-vs-select-attn)
+             (experiment-transition)
+             (beer-initial-conditions)
+             (beer-parameters)
+             (emacsy util)
+             (oop goops)
+             (fode-physics)
+             (bullet-physics)
+             (oop goops save)
+             (system repl error-handling)
+             (eval-robot))
+;; UGH. beer-experiment.scm should be put into a module or migrated
+;; into several modules more likely.
+(load "beer-experiment.scm")
+
+(define (main args)
+  (call-with-error-handling
+   (lambda ()
+     (let ((argc (length (program-arguments)))
+           (filenames #f)
+           (expmts #f))
+       (unless (<= 2 argc)
+         (format #t "Usage: experiment-succeeded-p <filename ...>~%")
+         (exit 2))
+       (set! filenames (cdr (program-arguments)))
+       (set! expmts (map read-experiment filenames))
+       (if (= 1 (length expmts))
+        (if (exp:succeeded? (car expmts))
+            (begin
+              (format #t "~a succeeded.~%" (car filenames))
+              (exit 0))
+            (begin
+              (format #t "~a failed.~%" (car filenames))
+              (exit 1)))
+        (let* ((successful-expmts (filter exp:succeeded? expmts))
+               (i (length successful-expmts))
+               (j (length expmts)))
+          (format #t "Success/trial = ~a/~a = ~1,2f~%" 
+                  i 
+                  j
+                  (/ i j))
+          (exit (if (> i 0)
+                    0
+                    1))))))))
+
+

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+eracs -s run-individual results-6/fode-5.dat &
+eracs -s run-individual results-6/bullet-11.dat &
+eracs -s run-individual results-6/f2b2-5.dat &

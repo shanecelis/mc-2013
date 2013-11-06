@@ -30,12 +30,12 @@
 (define-method (initialize (bps <bullet-physics-skateboard>) initargs)
   (define (process-object body)
     (set-friction! body 1000.)
-      (sim-add-body (bp:sim bps) 
-                    body
-                    object-group          ; is-a
-                    (logior 
-                     floor-group)         ; collides with
-                    ))
+    (sim-add-body (bp:sim bps) 
+                  body
+                  object-group          ; is-a
+                  (logior 
+                   floor-group)         ; collides with
+                  ))
   (define (process-joint joint)
      (sim-add-constraint (bp:sim bps)
                          joint))
@@ -98,15 +98,12 @@
 (define-method (step-physics (bps <bullet-physics-skateboard>) h)
   "Apply the effectors and step the physics simulation forward by h
 seconds."
-
+  (define (get-input index)
+    "Get input from 1-based index.  [0, 1] -> [-1, 1]"
+    (lerp -1 1 ((effector-func bps) (get-time bps) index))) 
+  
   (if (effector-func bps)
-      (let* ((e1 ((effector-func bps) (get-time bps) 1))
-             (e2 ((effector-func bps) (get-time bps) 2))
-             (agent (car (bp:objects bps)))
-             (motor1 (car (bpc:axes bps)))
-             (motor2 (cadr (bpc:axes bps)))
-             (motor3 (caddr (bpc:axes bps)))
-             (motor4 (cadddr (bpc:axes bps)))
+      (let* ((agent (car (bp:objects bps)))
              ;; (hinge-proximal (car (bps:hinges bps)))
              ;; (hinge-distal (cadr (bps:hinges bps)))
              (pi/2 (/ pi 2.))
@@ -117,16 +114,15 @@ seconds."
         ;(format #t "a1 ~a a2 ~a ~%" angle-proximal angle-distal)
         ;; Turn the motors off.
         (for-each (lambda (motor) 
-                    (actuate-angular-motor motor
-                                           #f
-                                           )) (list motor1 motor3))
-        (for-each (lambda (motor) 
-                    (actuate-angular-motor motor
-                                           #f
-                                           )) (list motor2 motor4))
+                    (actuate-angular-motor motor #f)
+                    #;(actuate-angular-motor motor #t))
+                  (bpc:axes bps))
+        
         (for-each (lambda (i hinge)
-                    (let* ((effector ((effector-func bps) (get-time bps) i))
+                    (let* ((effector (get-input i))
                            (angle (* effector pi/2)))
+                      #;(actuate-joint hinge #f)
+                      #;(actuate-joint hinge 0. h max-impulse)
                       (actuate-joint hinge angle h max-impulse)))
                   (iota (length (bps:hinges bps)) 1)
                   (bps:hinges bps))

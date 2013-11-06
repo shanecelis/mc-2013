@@ -45,7 +45,7 @@
                     (apply mylog "emacsy" pri-debug  format-msg args)))
 
 (set! *random-state* (random-state-from-platform))
-(set! debug-on-error? #t)
+(set! debug-on-error? #f)
 ; (use-modules (system vm trace))
 ; (trace-calls-to-procedure make-stack)
 (set! %load-hook (lambda (filename)
@@ -101,3 +101,6 @@
 ;(primitive-load "experiment-max-speed-1.dat")
 ;(throw 'load-dot)
 ;(toggle-physics)
+
+(define-interactive (start-server)
+  (spawn-server))

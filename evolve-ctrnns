@@ -1,0 +1,39 @@
+#!/bin/bash
+# evolve-ctrnns
+
+if [ $# -ne 3 ]; then
+    echo "usage: evolve-ctrnns <dir> <physics_class> <count>" >&2;
+    echo "keeps evolving until a certain number of experiments have succeeded."
+    exit 2;
+fi
+
+dir="$1";
+physics_class="$2";
+count="$3";
+mkdir -p $dir;
+prefix=$(echo "$physics_class" | perl -pe 's/[<>]//g');
+i=0;
+j=0;
+while [ $i -le $count ]; do
+    file="$dir/$prefix-$j.dat";
+    if [ ! -f "$file" ]; then
+        if ./run-experiment "$file" "$physics_class"; then
+            i=$((i + 1));
+        fi
+        j=$((j + 1));
+        
+        ./test-summary $i $j $count
+    else
+        echo "warning: skipping $file.";
+        if ./experiment-succeeded-p "$file"; then
+            i=$((i + 1));
+        fi
+        j=$((j + 1));
+    fi
+done
+#./test-summary $i $j $count > "$dir/$prefix-results.txt";
+if [ $i -gt 0 ]; then
+    exit 0;
+else
+    exit 1;
+fi

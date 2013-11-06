@@ -1,0 +1,52 @@
+#!/usr/local/bin/guile \
+
+!#
+(use-modules
+ (ice-9 rdelim)
+ (ice-9 getopt-long)
+ (emacsy util))
+
+(define (usage)
+  (format 
+   (current-error-port)
+   "usage: guileclient [-H host] [-p port] [-e expression]~%"))
+
+(define option-spec
+  '((host (single-char #\H) (value #t))
+    (port    (single-char #\p) (value #t))
+    (expression (single-char #\e) (value #t))))
+
+(define options (getopt-long (program-arguments) option-spec #:stop-at-first-non-option #t))
+
+(define (read-and-display s)
+  (do ((line (read-line s) (read-line s)))
+      ((eof-object? line))
+    (display line)
+    (newline)))
+
+(let ((host (option-ref options 'host "127.0.0.1"))
+      (port (read-from-string (option-ref options 'port "37146")))
+      (expr (option-ref options 'expression #f))
+      (s (socket PF_INET SOCK_STREAM 0)))
+  (unless expr
+    (usage) 
+    (exit 2))
+  (connect s AF_INET (inet-pton AF_INET host) port)
+  ;(display "GET / HTTP/1.0\r\n\r\n" s)
+
+  ;(read-and-display s)
+  (when expr
+    (format #t "Sending expression~%")
+    (display expr s)
+    (display "\r\n" s)
+    (display ",q" s) ;; quit
+    (display "\r\n" s)
+    #;(newline s)
+    )
+  (sleep 1)
+  ;(usleep 250000)
+  (close s)
+  ;(read-and-display s)
+  (exit 0)
+  
+  )

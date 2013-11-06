@@ -61,8 +61,7 @@
   (let* ((buffer (switch-to-buffer "*eval-robot*" <physics-buffer>))
          (scene (scene buffer)))
     (define (init-undraw)
-      (undraw-vision-lines)
-      )
+      (undraw-vision-lines))
     (define (draw fode-state)
       (reset-camera)
       (draw-physics scene fode-state)
@@ -82,7 +81,8 @@
                                          (undraw fode-state)
                                          (end-fn fode-state))
                               #:max-tick-count max-tick-count
-                              #:init-ctrnn-state init-ctrnn-state)))
+                              #:init-ctrnn-state init-ctrnn-state
+                              #:draw-vision-lines? #t)))
 
 
 (define*
@@ -92,7 +92,8 @@
                    (begin-fn identity)
                    (end-fn identity)
                    (max-tick-count 2000)
-                   (init-ctrnn-state #f))
+                   (init-ctrnn-state #f)
+                   (draw-vision-lines? #f))
   (let* ((ctrnn (make-brain))
          (_ (init-brain-from-genome! ctrnn genome))
          (effector-func (make-brain-effector ctrnn))
@@ -100,16 +101,11 @@
                  #:object-count body-count 
                  #:effector-func effector-func))
          (fode-state (fix-physics fode))
-         (vision-input (make-vision-func #f ; don't draw.
+         (vision-input (make-vision-func draw-vision-lines?
                                          fode-state))
          (tick-count 0))
-    (format #t "Using brain ~a~%" ctrnn)
+    ;(format #t "Using brain ~a~%" ctrnn)
     (init-brain-state! ctrnn)
-    #;
-    (if init-ctrnn-state
-        (array-copy! init-ctrnn-state ctrnn-state))
-    
-    ;;(genome->ctrnn genome ctrnn)
     (set-brain-input! ctrnn vision-input)
     (begin-fn fode-state)
     (while (and 

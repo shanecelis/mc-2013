@@ -1,0 +1,45 @@
+#!/bin/bash
+# evolve-sandwiches
+
+# Probably ought to do another run based off one hundred random ctrnns
+
+if [ $# -ne 4 ]; then
+    echo "usage: evolve-sandwiches <dir> <physics_class> <count> <previous_file.dat>" >&2;
+    echo "Run a certain number of experiments." >&2;
+    exit 2;
+fi
+
+dir="$1";
+physics_class="$2";
+count="$3";
+experiment_file="$4";
+mkdir -p $dir;
+prefix="$(basename "$experiment_file" ".dat")-$(echo "$physics_class" | perl -pe 's/[<>]//g')";
+i=0; # count of successs
+j=0; # count of trials
+success_count=1;
+#while [ $j -lt $count ]; do
+# Let's do $count trials max, 
+while [ $j -lt $count ] && [ $i -lt $success_count ]; do
+    file="$dir/$prefix-$j.dat";
+    if [ ! -f "$file" ]; then
+        if ./fode2bullet "$file" "$experiment_file" "$physics_class"; then
+            i=$((i + 1));
+        fi
+        j=$((j + 1));
+        
+        echo "Success/trial $i/$j proportion $((i/j))";
+    else
+        echo "warning: skipping $file.";
+        if ./experiment-succeeded-p "$file"; then
+            i=$((i + 1));
+        fi
+        j=$((j + 1));
+    fi
+done
+./test-summary $i $j $count > "$dir/$prefix-results.txt";
+if [ $i -gt 0 ]; then
+    exit 0;
+else
+    exit 1;
+fi

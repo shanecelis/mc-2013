@@ -7,3 +7,45 @@
 ** Ran 4f-b which includes multiple vehicles.
 ** Running 4f-c which has a range of 0.25.
 
+** What's the timing of the different vehicles/simulators?
+   100 evals 29s fode-physics
+   100 evals 20s bullet-physics
+   100 evals 22s bullet-physics-car
+   100 evals 26s bullet-physics-skateboard
+   100 evals 24s bullet-physics-skateboard-1
+   100 evals 26s bullet-physics-skateboard-2
+
+   1000 evals 4m48s fode-physics
+   1000 evals 3m23s bullet-physics
+
+** Upgraded to Mavericks
+   100 evals 20s fode-physics
+
+** Switching to Euler
+   100 evals 12s fode-physics
+   100 evals 13s bullet-physics
+   100 evals 15s bullet-physics-car
+   100 evals 19s bullet-physics-skateboard
+   100 evals 17s bullet-physics-skateboard-1
+   100 evals 17s bullet-physics-skateboard-2
+
+** Switching to reusing memory (fewer mallocs)
+   100 evals 13s fode-physics
+
+   
+** Running results-16 with bullet-physics-car
+
+** Found an issue...
+Trying to run some results with a CTRNN car that uses [-1, 1] range
+for outputs
+
+** Try running with and without a sandwich
+
+$ time eracs -s plot-random-genomes -p '<fode-physics>' results-15/fode-4.dat 100 blah.m
+   100 random evals 18s fode-physics 
+without write 9s
+
+$ time eracs -s plot-random-genomes -p '<fode-physics>' -s results-15/f2b-4a.dat 100 blah.m
+
+  12s
+without write 12s

@@ -3,23 +3,35 @@
 !#
 (use-modules (experiment)
              (oop goops)
+             (ice-9 getopt-long)
              (experiment-transition))
 
+(define option-spec
+  '((only-successful? (single-char #\s) (value #f))
+    (only-failed? (single-char #\f) (value #f))))
+
 (define (main args)
-  (let ((argc (length args))
-        (filename #f)
-        (exp #f)
-        (exps #f))
-    (when (= 1 argc)
-      (format #t "Usage: ~a <filename ...>~%" (car args))
+  (let* ((options (getopt-long args option-spec #:stop-at-first-non-option #t))
+         (args (option-ref options '() '()))
+         (argc (length args))
+         (filename #f)
+         (exp #f)
+         (exps #f))
+    (when (= 0 argc)
+      (format (current-error-port) "Usage: gather-analyze [-sf] <filename ...>~%")
+      (format (current-error-port) "-s only successful~%")
+      (format (current-error-port) "-s only failed~%")
       (exit 2))
     
-    (set! exps (map read-experiment (cdr args)))
+    (set! exps (map read-experiment args))
+    (when (option-ref options 'only-successful? #f)
+      (set! exps (filter exp:succeeded? exps)))
 
+    (when (option-ref options 'only-failed? #f)
+      (set! exps (filter (compose not exp:succeeded?) exps)))
+    
     (set! exp (make <experiment-transition-parent>
               #:child-experiments
               exps))
 
-    (analyze-data! exp)
-    
-    ))
+    (analyze-data! exp)))

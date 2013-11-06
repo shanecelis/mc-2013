@@ -31,6 +31,8 @@
   #:export (bp:sim bp:objects update-fake-state)
  )
 
+(define max-velocity 5.)
+
 (define-class-public <bullet-physics> (<physics>)
   (sim #:accessor bp:sim #:init-keyword #:sim #:init-form (make-sim) #;(current-sim))
   (objects #:accessor bp:objects #:init-value '())
@@ -125,7 +127,7 @@ seconds."
              (agent (car (bp:objects bp))))
         (apply-force agent 
                      (vector 
-                      (* (agent-motor-constant-ref bp) (- de v)) 
+                      (* (agent-motor-constant-ref bp) (- (* max-velocity de) v)) 
                       0. 
                       0.) 
                      #(0. 0. 0.))))

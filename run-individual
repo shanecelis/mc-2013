@@ -32,11 +32,14 @@
 (define expmt #f)
 
 (define (substitute-sandwich exp sandwich)
-  (set! (exp:results exp)
-        (map (lambda (record)
-               (cons sandwich
-                     (cdr record)))
-             (exp:results exp))))
+  (if (null? (exp:results exp))
+      (set! (exp:results exp)
+            (list (cons sandwich #f64(-1 -1))))
+   (set! (exp:results exp)
+         (map (lambda (record)
+                (cons sandwich
+                      (cdr record)))
+              (exp:results exp)))))
 
 (define (matrix-norm A)
   "Find ||A||_1 norm for a row-major matrix."
@@ -84,12 +87,12 @@
         (set! (exp:physics-class expmt) physics-class))
       (set! physics-class (exp:physics-class expmt)))
   (format #t "Physics class is ~a.~%" physics-class)
-  (if (exp:succeeded? expmt)
-      (begin
-        (when (option-ref options 'sandwich #f)
+  (when (option-ref options 'sandwich #f)
           (substitute-sandwich 
            expmt 
            (read-from-string (option-ref options 'sandwich #f))))
+  (if (not (null? (exp:results expmt)))
+      (begin
         (when (option-ref options 'sandwich-outfile #f)
          (plot-sandwich expmt 
                         (read-from-string 
@@ -105,7 +108,7 @@
           (exit 0))
         )
       (begin 
-        (format (current-error-port) "error: This experiment did not succeed.~%")
+        (format (current-error-port) "error: This experiment does not have any successful genomes.~%")
         (exit 1)
         ))
 

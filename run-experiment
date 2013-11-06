@@ -30,12 +30,16 @@
                    (= 3 argc))
          (format #t "Usage: run-experiment <filename> [physics-class]~%")
          (format #t "physics-classes: <fode-physics>, <bullet-physics>, <bullet-physics-car>~%")
+         (format #t "exits with 0 if experiment succeeds, non-zero otherwise~%")
          (exit 2))
        (set! filename (cadr (program-arguments)))
        (if (= 3 argc)
            (set! physics-class-arg (eval (read-from-string (caddr (program-arguments))) (interaction-environment)))
            (set! physics-class-arg <fode-physics>))
-       (run-experiment filename physics-class-arg)))))
+       ;(run-experiment filename physics-class-arg)
+       (exit (if (exp:succeeded? (run-experiment filename physics-class-arg))
+                 0
+                 1))))))
 
 (define* (run-experiment filename #:optional physics-class-arg)
   ;;(define exp-class <gen-count-vs-select-attn-trial>)
@@ -54,11 +58,9 @@
                    physics-class-arg
                    )
     (make-instance exp-class 
-                   #:max-gen 50 #;60 ;; 100
+                   #:max-gen 100 ;;50 #;60 ;; 100
                    #:physics-class 
-                   physics-class-arg
-                   )
-    )
+                   physics-class-arg))
 
   #;(set! exp (make <gen-count-vs-select-attn>
                 #:child-experiments
@@ -78,4 +80,5 @@
   (analyze-data! exp)
                                         ;(format #t "RESULTS: ~a~%" (exp:results exp))
 
-  (save-experiment exp filename))
+  (save-experiment exp filename)
+  exp)

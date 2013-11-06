@@ -14,6 +14,8 @@
  (mathematica-aux)
  )
 
+(load "beer-experiment.scm")
+
 (define args (program-arguments))
 (define argc (length args))
 
@@ -25,19 +27,22 @@
     ))
 
 (define (usage)
-  (format (current-error-port) "usage: ~a [-p physics-class] [-s] <experiment.dat> <count> <output.m>~%" 
+  (format (current-error-port) "usage: ~a [-r random-range] [-p physics-class] [-s] <experiment.dat> <count> <output.m>~%" 
           (car (program-arguments))))
 
 (define options (getopt-long args option-spec #:stop-at-first-non-option #t))
 
 (define expmt #f)
 
-(define (substitute-sandwich expmt sandwich)
-  (set! (exp:results expmt)
-        (map (lambda (record)
-               (cons sandwich
-                     (cdr record)))
-             (exp:results expmt))))
+(define (substitute-sandwich exp sandwich)
+  (if (null? (exp:results exp))
+      (set! (exp:results exp)
+            (list (cons sandwich #f64(-1 -1))))
+   (set! (exp:results exp)
+         (map (lambda (record)
+                (cons sandwich
+                      (cdr record)))
+              (exp:results exp)))))
 
 (define (substitute-genome expmt genome)
   (set! (exp:mc-genome expmt) genome))
@@ -75,18 +80,33 @@
       (lambda (port)
         (format port "~a" (sexp->mathematica results))))))
 
+(define (plot-random-genome-no-sandwich outfile count range)
+  (let ((results 
+         (map 
+          (lambda (i)
+            (let* ((genome-length (array-length (caar (exp:results expmt))))
+                   (R (random-vector range genome-length))
+                   (fitness 
+                    (begin 
+                      (substitute-sandwich expmt R)
+                      (run-individual expmt 0))))
+              (list R fitness)))
+          (iota count))))
+    (call-with-output-file outfile 
+      (lambda (port)
+        (format port "~a" (sexp->mathematica results))))))
+
 (define (plot-random-genome outfile count range)
   (let ((results 
          (map 
           (lambda (i)
             (let* ((I #(1. 0. 0. 1.))
-                   (R (random-vector range
-                                     (array-length (exp:mc-genome expmt))))
+                   (genome-length (array-length (exp:mc-genome expmt)))
+                   (R (random-vector range genome-length))
                    (fitness 
                     (begin 
                       (substitute-sandwich expmt I)
-                      (substitute-genome 
-                       expmt R)
+                      (substitute-genome expmt R)
                       (run-individual expmt 0))))
               (list R fitness)))
           (iota count))))

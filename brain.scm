@@ -20,7 +20,9 @@
             ;;ctrnn-state
             <procedure-brain>
             go-left
+            go-left*
             go-right
+            go-right*
             go-nowhere
             go-nowhere*
             
@@ -69,8 +71,7 @@
                (bias (ctrnn brain))
                (gain (ctrnn brain))
                (ctrnn-state brain)
-               (ctrnn-state-init brain)
-               ))))
+               (ctrnn-state-init brain)))))
 
 (define (array-duplicate array)
   (let ((dup (apply make-typed-array 
@@ -136,10 +137,23 @@
       1.0
       0.0))
 
+(define (go-right* t i . rest)
+  #;(format #t "GO RIGHT ~a~%" i)
+  (if (= i 1)
+      1.0
+      -1.0))
+
+
 (define (go-left t i . rest)
   #;(format #t "GO LEFT ~a~%" i)
   (if (= i 1)
       0.0 ;; or -1.0
+      1.0))
+
+(define (go-left* t i . rest)
+  #;(format #t "GO LEFT ~a~%" i)
+  (if (= i 1)
+      -1.0 ;; or -1.0
       1.0))
 
 (define (go-nowhere t i . rest)
@@ -160,7 +174,11 @@
 (define-class <matrix-sandwich> (<brain>)
   (old-brain #:accessor old-brain #:init-keyword #:old-brain)
   (matrix-sandwich #:accessor matrix-sandwich #:init-value #f #:init-keyword #:matrix-sandwich)
-  (transition-params #:accessor transition-params #:init-keyword #:transition-params))
+  (transition-params #:accessor transition-params #:init-keyword #:transition-params)
+
+  )
+
+;(define-class <affine-matrix-sandwich> (<matrix-sandwich>))
 
 (define-method (set-brain-input! (brain <matrix-sandwich>) input)
   (set-brain-input! (old-brain brain) input))
