@@ -27,7 +27,7 @@
     ))
 
 (define (usage)
-  (format (current-error-port) "usage: ~a [-r random-range] [-p physics-class] [-s] <experiment.dat> <count> <output.m>~%" 
+  (format (current-error-port) "usage: ~a [-r random-range] [-p physics-class] [-s] <input.dat> <output.m>~%" 
           (car (program-arguments))))
 
 (define options (getopt-long args option-spec #:stop-at-first-non-option #t))
@@ -42,6 +42,16 @@
          (map (lambda (record)
                 (cons sandwich
                       (cdr record)))
+              (exp:results exp)))))
+
+(define (substitute-sandwich-and-fitness exp sandwich fitness)
+  (if (null? (exp:results exp))
+      (set! (exp:results exp)
+            (list (cons sandwich fitness)))
+   (set! (exp:results exp)
+         (map (lambda (record)
+                (cons sandwich
+                      fitness))
               (exp:results exp)))))
 
 (define (substitute-genome expmt genome)
@@ -76,6 +86,8 @@
                                        (run-individual expmt 0))))
                   (list R fitness)))
               (iota count))))
+    #f
+    #;
     (call-with-output-file outfile 
       (lambda (port)
         (format port "~a" (sexp->mathematica results))))))
@@ -90,8 +102,11 @@
                     (begin 
                       (substitute-sandwich expmt R)
                       (run-individual expmt 0))))
+              (substitute-sandwich-and-fitness expmt R fitness)
               (list R fitness)))
           (iota count))))
+    #f
+    #;
     (call-with-output-file outfile 
       (lambda (port)
         (format port "~a" (sexp->mathematica results))))))
@@ -110,6 +125,8 @@
                       (run-individual expmt 0))))
               (list R fitness)))
           (iota count))))
+    #f
+    #;
     (call-with-output-file outfile 
       (lambda (port)
         (format port "~a" (sexp->mathematica results))))))
@@ -117,30 +134,28 @@
 (define (main)
   (set! args (option-ref options '() '()))
   (set! argc (length args))
-
-  (unless (= 3 argc)
+  (unless (= 2 argc)
     (usage)
     (exit 2))
-
+  
   (set! *random-state* (random-state-from-platform))
+
   (set! expmt (read-experiment (car args)))
   
   (when (option-ref options 'physics #f)
     (set! physics-class 
           (eval (string->symbol (option-ref options 'physics #f)) (interaction-environment)))
     (set! (exp:physics-class expmt) physics-class))
-  (format #t "Physics class is ~s.~%" physics-class)
+  ;(format #t "Physics class is ~s.~%" physics-class)
   
-  (let ((count (string->number (cadr args)))
-        (output (caddr args))
+  (let ((output (cadr args))
         (range (read-from-string (option-ref options 'range "1.0"))))
-    (format #t "count ~a~%" count)
+    ;(format #t "count ~a~%" count)
     
     (if (option-ref options 'use-sandwich #f)
-        (begin
-          (set! expmt (to-experiment-fode->bullet-trial expmt))
-          (plot-random-sandwich output count range))
-        (plot-random-genome-no-sandwich output count range)))
+        (plot-random-sandwich output 1 range)
+        (plot-random-genome-no-sandwich output 1 range))
+    (save-experiment expmt output))
   (exit 0))
 
 (call-with-error-handling

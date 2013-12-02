@@ -1,7 +1,8 @@
 #!/usr/bin/env guile \
 --debug -e main -s 
 !#
-(use-modules (experiment)
+(use-modules (ice-9 getopt-long) 
+             (experiment)
              (experiment-gen-count-vs-select-attn)
              (experiment-transition)
              (beer-initial-conditions)
@@ -18,33 +19,32 @@
 ;; into several modules more likely.
 (load "beer-experiment.scm")
 
+(define option-spec
+  '())
+
 #;(format #t "prog args ~a~%" (program-arguments))
 
 (define (main args)
   (call-with-error-handling
    (lambda ()
-     (let ((argc (length (program-arguments)))
-           (filename #f)
-           (physics-class-arg #f))
-       (unless (or (= 2 argc)
-                   (= 3 argc))
-         (format #t "Usage: run-experiment <filename> [physics-class]~%")
-         (format #t "physics-classes: <fode-physics>, <bullet-physics>, <bullet-physics-car>~%")
+     (let* ((options (getopt-long args option-spec #:stop-at-first-non-option #t))
+            (args (option-ref options '() '()))
+            (argc (length args)))
+       (when (> 2 argc)
+         (format #t "Usage: run-experiment <experiment-class> <filename> -- experiment args...~%")
          (format #t "exits with 0 if experiment succeeds, non-zero otherwise~%")
          (exit 2))
-       (set! filename (cadr (program-arguments)))
-       (if (= 3 argc)
-           (set! physics-class-arg (eval (read-from-string (caddr (program-arguments))) (interaction-environment)))
-           (set! physics-class-arg <fode-physics>))
-       ;(run-experiment filename physics-class-arg)
-       (exit (if (exp:succeeded? (run-experiment filename physics-class-arg))
+       (exit (if (exp:succeeded? 
+                  (run-experiment 
+                   (eval (read-from-string (car args)) (interaction-environment))
+                   (cadr args)
+                   (cons (car args) (cddr args))))
                  0
                  1))))))
 
-(define* (run-experiment filename #:optional physics-class-arg)
+(define* (run-experiment exp-class filename args)
   ;;(define exp-class <gen-count-vs-select-attn-trial>)
   ;;(define exp-class <gen-count-vs-select-attn-trial-easier>)
-  (define exp-class <experiment-transition-trial>)
   (define exp #f)
   ;(define exp-class <gen-count-vs-select-attn-dummy>)
   (define trial-count 1 #;15
@@ -57,10 +57,8 @@
                    #:physics-class 
                    physics-class-arg
                    )
-    (make-instance exp-class 
-                   #:max-gen 100 ;;50 #;60 ;; 100
-                   #:physics-class 
-                   physics-class-arg))
+    (make-instance exp-class))
+  
 
   #;(set! exp (make <gen-count-vs-select-attn>
                 #:child-experiments
@@ -70,15 +68,16 @@
               #:child-experiments
               (map (lambda (i) (make-trial)) (iota trial-count))))
   (set! exp (make-trial))
+  (process-arguments! exp args)
 
   (generate-parameters! exp)
-                                        ;(format #t "PARAMETERS: ~a~%" (exp:parameters exp))
+  ;(format #t "PARAMETERS: ~a~%" (exp:parameters exp))
 
   (run-experiment! exp)
-                                        ;(format #t "DATA: ~a~%" (exp:data exp))
+  ;(format #t "DATA: ~a~%" (exp:data exp))
 
   (analyze-data! exp)
-                                        ;(format #t "RESULTS: ~a~%" (exp:results exp))
+  ;(format #t "RESULTS: ~a~%" (exp:results exp))
 
   (save-experiment exp filename)
   exp)

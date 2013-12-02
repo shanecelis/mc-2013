@@ -14,10 +14,11 @@ mkdir -p $dir;
 prefix=$(echo "$physics_class" | perl -pe 's/[<>]//g');
 i=0;
 j=0;
-while [ $i -le $count ]; do
+#while [ $i -lt $count ]; do
+while [ $j -lt $count ]; do
     file="$dir/$prefix-$j.dat";
     if [ ! -f "$file" ]; then
-        if ./run-experiment "$file" "$physics_class"; then
+        if ./run-experiment '<experiment-transition-trial>' "$file" -- -S '#f' -p "$physics_class"; then
             i=$((i + 1));
         fi
         j=$((j + 1));

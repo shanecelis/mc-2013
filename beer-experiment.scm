@@ -40,8 +40,7 @@
  (optimize-transition)
  (experiment-transition)
  (eval-robot)
- (brain)
- )
+ (brain))
 
 (set! physics-class <fode-physics>)
 ;(define physics-class <bullet-physics>)
@@ -69,7 +68,7 @@
                 (message "Switched to physics class ~a." x)
                 (set! physics-class x)
                 (reset-fode)
-                )))
+                (reset-camera))))
 
 ;; XXX There is a bug here because I can't get rid of temp.  The macro
 ;; won't behave.  Adding new define-*s is tricky, maybe not worth the
@@ -302,6 +301,17 @@
 
 (define fode-state #f)
 
+(define (swap-yz v)
+  "Swap a vector's yz."
+  (vector (vector-ref v 0)
+          (vector-ref v 2)
+          (- (vector-ref v 1))))
+
+(define (fix-vector v)
+  (if (is-a? fode <fode-physics>)
+      v
+      (swap-yz v)))
+
 (define vision-line-actors #f)
 (define vision-line-actors-index 0)
 (define (draw-vision-lines agent-position end-point)
@@ -316,11 +326,11 @@
       #;(format #t "draw-vision-lines add-line ~a ~a~%" agent-position end-point)
       (if (not (: vision-line-actors @ vision-line-actors-index))
           (vector-set! vision-line-actors vision-line-actors-index 
-                       (add-line scene (list (vector-append agent-position #(0.))
-                                             (vector-append end-point #(0.)))))
+                       (add-line scene (list (fix-vector (vector-append agent-position #(0.)))
+                                             (fix-vector (vector-append end-point #(0.))))))
           (update-line (: vision-line-actors @ vision-line-actors-index)
-                       (list (vector-append agent-position #(0.))
-                             (vector-append end-point #(0.)))))
+                       (list (fix-vector (vector-append agent-position #(0.)))
+                             (fix-vector (vector-append end-point #(0.))))))
       (set! vision-line-actors-index 
             (mod (1+ vision-line-actors-index) sensor-count)))))
 
@@ -570,15 +580,15 @@
   )
 
 (define-interactive (reset-camera)
-  (set-parameter! 'camera-position (vector 0 (/ max-height 2) 300))
-  (set-parameter! 'camera-target (vector 0 (/ max-height 2) 0))
-  (set-parameter! 'camera-up #(0 1 0)))
+  (set-parameter! 'camera-position (fix-vector (vector 0 (/ max-height 2) 300)))
+  (set-parameter! 'camera-target (fix-vector (vector 0 (/ max-height 2) 0)))
+  (set-parameter! 'camera-up (fix-vector #(0 1 0))))
 
 (add-hook! post-window-open-hook 
            (lambda ()
-             (reset-camera)
              (randomize-genome! current-genome)
-             (reset-fode)) 
+             (reset-fode)
+             (reset-camera)) 
            #t)
 
 (define-interactive
@@ -704,7 +714,14 @@
 (define last-results #f)
 
 (define successful-distance (+ (/ object-diameter 2)
-                                (/ agent-diameter  2)))
+                               (/ agent-diameter  2)))
+
+(define (make-fitness-collector)
+  (let ((fitnesses '()))
+    (case-lambda 
+      (() fitnesses)
+      ((generation results)
+       (cons! (list generation (map (compose array-duplicate caddr) results)) fitnesses)))))
 
 (define (individual-succeeded? fitness)
   "Did the individual come in contact with the object."
@@ -840,8 +857,7 @@ objective. Genome and fitness are #f64 arrays."
     (let ((filtered (get-results-that-succeeded results)))
       (when (not (null? filtered))
         (set! results filtered)
-        (set! error-kind "Successful")
-        ))
+        (set! error-kind "Successful")))
     (set! results (sort! results (lambda (a b)
                                    ;; XXX The < or > needs to be used
                                    ;; in reference to whether this is
@@ -970,5 +986,5 @@ given tasks."
   )
 
 
-(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions reset-camera make-effector-func-unified make-c-effector-func undraw-vision-lines #;fode defer-promise
+(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions reset-camera make-effector-func-unified make-c-effector-func undraw-vision-lines #;fode defer-promise make-fitness-collector
         )

@@ -23,12 +23,12 @@ success_count=1;
 while [ $j -lt $count ] && [ $i -lt $success_count ]; do
     file="$dir/$prefix-$j.dat";
     if [ ! -f "$file" ]; then
-        if ./fode2bullet "$file" "$experiment_file" "$physics_class"; then
+        if ./run-experiment '<experiment-fode->bullet-trial>' "$file" -- -p "$physics_class" -S '#f' "$experiment_file" ; then
             i=$((i + 1));
         fi
         j=$((j + 1));
         
-        echo "Success/trial $i/$j proportion $((i/j))";
+        ./test-summary $i $j $count
     else
         echo "warning: skipping $file.";
         if ./experiment-succeeded-p "$file"; then

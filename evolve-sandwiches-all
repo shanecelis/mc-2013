@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ $# -ne 1 ]; then
+    echo "usage: evolve-sandwiches-all <physics-class>" >&2;
+    exit 2;
+fi
+
+physics_class="$1";
 i=0
 j=0
 n=0
@@ -7,7 +13,7 @@ for file in results-20/fode-physics-?.dat results-20/fode-physics-??.dat; do
     n=$((n + 1));
 done
 for file in results-20/fode-physics-?.dat results-20/fode-physics-??.dat; do
-    if ./evolve-sandwiches results-20 '<bullet-physics-car>' 10 "$file"; then
+    if ./evolve-sandwiches results-20 "$physics_class" 4 "$file"; then
         i=$((i + 1));
     fi
     j=$((j + 1));

@@ -49,3 +49,30 @@ $ time eracs -s plot-random-genomes -p '<fode-physics>' -s results-15/f2b-4a.dat
 
   12s
 without write 12s
+
+** Results
+
+*** evolved sandwich car
+evolve-sandwiches-all: Success/trial = 84/100 = .84; 0 trials left.
+
+
+*** evolved ctrnn car
+evolve-sandwiches-all: Success/trial = 94/100 = .94; 0 trials left.
+
+*** evolved sandwich skateboard-1
+evolve-sandwiches-all: Success/trial = 50/100 = .50; 0 trials left.
+*** evolved sandwich skateboard-2
+evolve-sandwiches-all: Success/trial = 97/100 = .97; 0 trials left.
+
+
+for file in results-20/fode-physics-?.dat results-20/fode-physics-??.dat; do ./plot-random-genomes -s -p '<bullet-physics-car>' $file 100 "results-21/$(basename $file .dat)-100-random-sandwiches.m"; done
+
+for file in results-20/fode-physics-??.dat; do ./evolve-sandwiches results-23 '<bullet-physics-car>' 3 "$file"; done
+
+** results-23
+   Has a non-stop evolutionary run for the CTRNN 
+
+for file in results-20/fode-physics-??.dat; do ./evolve-sandwiches results-23 '<bullet-physics-car>' 3 "$file"; done
+
+./export-data results-23/fode-physics-*-bullet-physics-car-{0,1,2}.dat > results-23/fode-physics-all-bullet-physics-car.m
+

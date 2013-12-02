@@ -3,7 +3,9 @@
 !#
 (use-modules (experiment)
              (oop goops)
-             (experiment-transition))
+             (experiment-transition)
+             (system repl error-handling)
+             )
 
 (define (main args)
   (let ((argc (length args))
@@ -12,11 +14,19 @@
     (when (= 1 argc)
       (format #t "Usage: ~a <filename ...>~%" (car args))
       (exit 2))
-    
-    (set! exps (map read-experiment (cdr args)))
+    ;(format #t "reading ~a~%" filename)
+    (set! exps (map (lambda (filename) 
+                      ;(format #t "reading ~a~%" filename)
+                      (read-experiment filename)) (cdr args)))
 
+    ;(format #t "END READING~%")
     (set! exp (make <experiment-transition-parent>
               #:child-experiments
               exps))
 
     (export-data exp (current-output-port))))
+
+(define (debug-main args)
+  (call-with-error-handling
+   (lambda ()
+     (main args))))

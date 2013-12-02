@@ -1,6 +1,6 @@
 #!/bin/bash
 
 #./evolve-ctrnns results-20 '<fode-physics>' 100;
-./evolve-ctrnns results-20 '<bullet-physics-car>' 100;
-./evolve-ctrnns results-20 '<bullet-physics-skateboard-1>' 100;
-./evolve-ctrnns results-20 '<bullet-physics-skateboard-2>' 100;
+./evolve-ctrnns results-23 '<bullet-physics-car>' 20;
+#./evolve-ctrnns results-20 '<bullet-physics-skateboard-1>' 100;
+#./evolve-ctrnns results-20 '<bullet-physics-skateboard-2>' 100;

@@ -11,7 +11,7 @@
 ;(define-public body-count 3) ;; 1 agent, 2 objects
 (define-public body-count 2) ;; 1 agent, 1 object
 (define-public agent-diameter 30)
-(define-public object-diameter 26)
+(define-public object-diameter 26) ;; success = 15 + 13 = 28
 (define-public motor-constant 5.0)
 (define-public max-sight-distance 205)
 (define-public visual-angle (/ pi 6))

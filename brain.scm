@@ -30,6 +30,7 @@
             brain-class
             
             <matrix-sandwich>
+            array-duplicate
             ))
 
 (define-class <brain> ())
@@ -174,9 +175,7 @@
 (define-class <matrix-sandwich> (<brain>)
   (old-brain #:accessor old-brain #:init-keyword #:old-brain)
   (matrix-sandwich #:accessor matrix-sandwich #:init-value #f #:init-keyword #:matrix-sandwich)
-  (transition-params #:accessor transition-params #:init-keyword #:transition-params)
-
-  )
+  (transition-params #:accessor transition-params #:init-keyword #:transition-params))
 
 ;(define-class <affine-matrix-sandwich> (<matrix-sandwich>))
 
