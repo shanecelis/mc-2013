@@ -197,7 +197,7 @@
          (fode-genome (begin
                         (when (null? (exp:results fode-exp))
                           (format (current-error-port)
-                                  "error: no successful results available in ~a.~%" fode-expr-filename)
+                                  "error: no successful results available in ~a.~%" (car leftover-args))
                           (exit 1))
                         (caar (exp:results fode-exp)))))
     (set! (exp:mc-genome exp) fode-genome)

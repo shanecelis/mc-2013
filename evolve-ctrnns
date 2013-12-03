@@ -12,8 +12,8 @@ physics_class="$2";
 count="$3";
 mkdir -p $dir;
 prefix=$(echo "$physics_class" | perl -pe 's/[<>]//g');
-i=0;
-j=0;
+i=0; # success count
+j=0; # total count
 #while [ $i -lt $count ]; do
 while [ $j -lt $count ]; do
     file="$dir/$prefix-$j.dat";
