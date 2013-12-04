@@ -81,5 +81,12 @@ results-24/fode-physics-*.dat
 
 Then evolve the sandwiches.  See if there's a big difference with the submitted results.
 
+for file in results-24/fode-physics-?.dat results-24/fode-physics-??.dat; do ./evolve-sandwiches results-24 '<bullet-physics-car>' 3 "$file"; done
+
 ** evolve bullet with evolvable wheel size
-results-25
+
+$ ./evolve-ctrnns results-25 '<bullet-physics-car-gene-wheel>' 100
+
+** evolve bullet with seeded CTRNNs
+
+for file in results-24/fode-physics-?.dat results-24/fode-physics-??.dat; do EXPERIMENT_CLASS='<experiment-fode->bullet-trial-no-sandwich>' ./evolve-sandwiches results-26 '<bullet-physics-car>' 3 "$file"; done

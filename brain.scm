@@ -206,6 +206,12 @@
    (make-brain-effector (old-brain brain))
    (matrix-sandwich brain)))
 
+(define-method (init-from-genome! (brain <matrix-sandwich>) genome)
+  (init-brain-from-genome! brain genome))
+
+(define-method (gene-count-required (brain <matrix-sandwich>))
+  (tp:gene-count (transition-params brain)))
+
 (define-method (init-brain-from-genome! (brain <matrix-sandwich>) genome)
   (if (matrix-sandwich brain)
       (array-copy! genome (matrix-sandwich brain))

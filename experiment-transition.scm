@@ -20,7 +20,7 @@
   #:use-module (phenotype)
   #:use-module (brain)
   #:use-module (float-equality)
-  #:use-module ((vector-math) #:select (vector->string))
+  #:use-module ((vector-math) #:select (vector->string range))
   #:use-module (minimal-cognition ctrnn)
   #:export (
             left-IC 
@@ -33,8 +33,10 @@
             exp:eval-count
             exp:wall-clock-time
             exp:succeeded?
+
             <experiment-transition-parent> 
             <experiment-fode->bullet-trial>
+            <experiment-fode->bullet-trial-no-sandwich>
             exp:transition-params
             run-individual
             install-individual
@@ -58,6 +60,9 @@
 (define-class <experiment-fode->bullet-trial> (<experiment-transition-trial>)
   (mc-genome #:accessor exp:mc-genome #:init-keyword #:mc-genome) ;; minimal cognition genome
   (transition-params #:accessor exp:transition-params #:init-keyword #:transition-params))
+
+;; We do an experiment without sandwiches, we just seed the population with evolved CTRNNs.
+(define-class <experiment-fode->bullet-trial-no-sandwich> (<experiment-fode->bullet-trial>))
 
 (define-method (to-experiment-fode->bullet-trial
                 (expmt <experiment-transition-trial>))
@@ -180,6 +185,8 @@
 (define-method (get-brain-class (exp <experiment-transition-trial>))
   <ctrnn-brain>)
 
+(define-method (get-brain-class (exp <experiment-fode->bullet-trial-no-sandwich>))
+  <ctrnn-brain>)
 
 (define-method (get-gene-count (exp <experiment-fode->bullet-trial>))
   (tp:gene-count (exp:transition-params exp)))
@@ -229,6 +236,14 @@
     (format #t "max-generation ~a~%" (exp:max-gen exp))
     args))
 
+(define-method (exp:seed-population (exp <experiment-transition-trial>))
+  '())
+
+(define-method (exp:seed-population (exp <experiment-fode->bullet-trial-no-sandwich>))
+  (format #t "Seeding the population with CTRNNs.")
+  (map (lambda (i)
+         (exp:mc-genome exp)) (range 1 population-count)))
+
 (define-method (run-experiment! (exp <experiment-transition-trial>))
   (define (my-any-individual-succeeded? generation results)
     (let ((result (any-individual-succeeded? generation results)))
@@ -261,9 +276,9 @@
                     #:objective-count 2
 ;                    #:real-mutation-rate 0
 ;                    #:real-crossover-rate 0
-                    #:population-count 12
+                    #:population-count population-count
                     #:generation-count (exp:max-gen exp)
-                    #:seed-population '()
+                    #:seed-population (exp:seed-population exp)
                     #:generation-tick-func 
                     (lambda args
                       (incr! generation-count)
