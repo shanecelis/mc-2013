@@ -27,7 +27,7 @@
 (define-class <bullet-physics-skateboard-2> (<bullet-physics-skateboard-n>)
   (leg-count #:init-value 2))
 
-(define-method (initialize (bps <bullet-physics-skateboard>) initargs)
+(define-method (init-physics (bps <bullet-physics-skateboard>) )
   (define (process-object body)
     (set-friction! body 1000.)
     (sim-add-body (bp:sim bps) 

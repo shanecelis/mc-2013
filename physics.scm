@@ -1,17 +1,25 @@
+;; The physics environment and the body are pretty confused right now.
+
 (define-module (physics)
   #:use-module (oop goops)
+  #:use-module (phenotype)
   #:export (<physics>
-            effector-count
-            object-count
-            effector-func
-            step-count
 
-            get-time
-            set-time!
+            step-count
+            object-count
+            effector-count
+            effector-func
+            
+
+            init-physics
             step-physics
             draw-physics
             undraw-physics
             reset-physics
+
+            get-time
+            set-time!
+            
             object-x-ref
             object-x-set!
 
@@ -23,15 +31,14 @@
 
             object-vy-ref
             object-vy-set!
+            
             agent-motor-constant-set!
             agent-motor-constant-ref
             
             ;; This shouldn't really be exposed should it?
-            fp:state
-            ))
+            fp:state))
 
-
-(define-class <physics> ()
+(define-class <physics> (<phenotype>)
   ;; Number of effectors/muscles/outputs the agent has.
   (effector-count #:accessor effector-count #:init-keyword #:effector-count #:init-value 2)
   ;; Number of objects in the scene including agent.
@@ -52,12 +59,23 @@
   #;(max-sight-distance #:getter max-sight-distance #:init-value 205)
   )
 
-(define-generic get-time)
-(define-generic set-time!)
+(define-method (gene-count-required (p <physics>))
+  ;; Require nothing.
+  0)
+
+(define-method (init-from-genome! (p <physics>) genome)
+  ;; Do nothing.
+  #f)
+
+
+(define-generic init-physics)
 (define-generic step-physics)
 (define-generic draw-physics)
 (define-generic undraw-physics)
 (define-generic reset-physics)
+
+(define-generic get-time)
+(define-generic set-time!)
 
 (define-generic object-x-ref)
 (define-generic object-x-set!)
@@ -80,3 +98,6 @@
 
 (define-public object-vx (make-procedure-with-setter object-vx-ref object-vx-set!))
 (define-public object-vy (make-procedure-with-setter object-vy-ref object-vy-set!))
+
+(define-method (init-physics (p <physics>))
+  #f)

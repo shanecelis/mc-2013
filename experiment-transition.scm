@@ -17,6 +17,7 @@
   #:use-module (fitness)
   #:use-module (nsga-ii)
   #:use-module (mathematica-plot plot)
+  #:use-module (phenotype)
   #:use-module (brain)
   #:use-module (float-equality)
   #:use-module ((vector-math) #:select (vector->string))

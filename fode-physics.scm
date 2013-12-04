@@ -1,7 +1,6 @@
 ;; fode-physics.scm
 
 (define-module (fode-physics) 
- 
   #:use-module (vector-math)
   #:use-module (emacsy util)
   #:use-module (beer-parameters)
@@ -14,16 +13,14 @@
   #:export (<fode-physics>
             fp:scene-actors
             fp:params
-            fp:k-params
-            )
-  )
+            fp:k-params))
 
 (define-class-public <fode-physics> (<physics>)
   (params #:init-value #f)
   (state #:getter fp:state #:init-value #f)
   (scene-actors #:accessor fp:scene-actors #:init-value '()))
 
-(define-method (initialize (fp <fode-physics>) initargs)
+(define-method (init-physics (fp <fode-physics>))
   (next-method)
   ;(format #t "EFFECTOR ~a~%" (effector-func fp))
   (slot-set! fp 'params (fode:make-fode (object-count fp) (effector-func fp)))

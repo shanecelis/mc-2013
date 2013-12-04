@@ -9,6 +9,7 @@
   #:use-module (system foreign)
   #:use-module (optimize-transition)
   #:use-module (vector-math)
+  #:use-module (phenotype)
   #:export (<brain> 
             set-brain-input! 
             step-brain! 
@@ -52,7 +53,7 @@
 ;; (make-brain-effector brain)
 (define-generic make-brain-effector)
 
-(define-class <ctrnn-brain> (<brain>)
+(define-class <ctrnn-brain> (<brain> <phenotype>)
   (ctrnn #:accessor ctrnn)
   (ctrnn-state #:accessor ctrnn-state)
   (ctrnn-state-init #:accessor ctrnn-state-init))
@@ -101,6 +102,14 @@
     (format #t "CREATING c effector ~a ~a~%" effector (unified-default-values effector))
                                         ;(throw 'blah)
     effector))
+
+(define-method (gene-count-required (brain <ctrnn-brain>))
+  (gene-count-for-n-ctrnn node-count))
+
+;; We'll just call init-brain-from-genome! so as not to break old
+;; code.
+(define-method (init-from-genome! (brain <ctrnn-brain>) genome)
+  (init-brain-from-genome! brain genome))
 
 (define-method (init-brain-from-genome! (brain <ctrnn-brain>) genome)
   (genome->ctrnn genome (ctrnn brain))

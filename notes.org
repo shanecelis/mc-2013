@@ -76,3 +76,7 @@ for file in results-20/fode-physics-??.dat; do ./evolve-sandwiches results-23 '<
 
 ./export-data results-23/fode-physics-*-bullet-physics-car-{0,1,2}.dat > results-23/fode-physics-all-bullet-physics-car.m
 
+** evolve FODE ctrnns for 100 generations
+results-24/fode-physics-*.dat
+
+Then evolve the sandwiches.  See if there's a big difference with the submitted results.

@@ -11,7 +11,7 @@
              (statprof)
              (logging)
              (ice-9 readline)
-             )
+             (camera))
 (activate-readline)
 
 (define-interactive (reload-log-config)
@@ -45,7 +45,7 @@
                     (apply mylog "emacsy" pri-debug  format-msg args)))
 
 (set! *random-state* (random-state-from-platform))
-(set! debug-on-error? #f)
+(set! debug-on-error? #t)
 ; (use-modules (system vm trace))
 ; (trace-calls-to-procedure make-stack)
 (set! %load-hook (lambda (filename)
@@ -104,3 +104,4 @@
 
 (define-interactive (start-server)
   (spawn-server))
+(set! scale-camera-movement 20)

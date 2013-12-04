@@ -28,8 +28,7 @@
   #:use-module (physics-buffer)
   #:use-module (guile-user)
   
-  #:export (bp:sim bp:objects update-fake-state)
- )
+  #:export (bp:sim bp:objects update-fake-state))
 
 (define max-velocity 5.)
 
@@ -37,8 +36,7 @@
   (sim #:accessor bp:sim #:init-keyword #:sim #:init-form (make-sim) #;(current-sim))
   (objects #:accessor bp:objects #:init-value '())
   (fake-state #:getter fp:state #:init-value #f)
-  (force-constant)
-  )
+  (force-constant))
 
 ;; Agent and Objects need to be placed in separate collision groups.
 ;; http://bulletphysics.org/Bullet/BulletFull/classbtDiscreteDynamicsWorld.html#a8636fbb78c9d0d730262db987201840a
@@ -46,7 +44,8 @@
 (define-public object-group 64) 
 (define-public wheel-group 256) 
 (define-public floor-group 3)                  ; StaticFilter
-(define-method (initialize (bp <bullet-physics>) initargs)
+;define-method (initialize (bp <bullet-physics>) initargs)
+(define-method (init-physics (bp <bullet-physics>))
   (define (process-agent agent)
     (set-friction! agent 0.0001)
     (sim-add-body (bp:sim bp) 
@@ -54,8 +53,7 @@
                   agent-group           ; is-a
                   (logior 
                    floor-group)        ; collides with
-                  )
-    )
+                  ))
   (define (process-object body)
     (set-friction! body 0.0001)
     (sim-add-body (bp:sim bp) 
@@ -127,7 +125,8 @@ seconds."
              (agent (car (bp:objects bp))))
         (apply-force agent 
                      (vector 
-                      (* (agent-motor-constant-ref bp) (- (* max-velocity de) v)) 
+                      (* (agent-motor-constant-ref bp) 
+                         (- (* max-velocity de) v))
                       0. 
                       0.) 
                      #(0. 0. 0.))))
@@ -200,7 +199,6 @@ seconds."
         (p (get-velocity body)))
     (vector-set! p y-axis (- (to-velocity v)))
     (set-velocity! body p)))
-
 
 (define eval-robot-render-speed 1)
 

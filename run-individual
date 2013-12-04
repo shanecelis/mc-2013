@@ -7,6 +7,7 @@
  (guile-user)
  (eval-robot)
  (emacsy emacsy)
+ (emacsy agenda)
  (system repl error-handling)
  (mathematica-aux)
  )
@@ -112,7 +113,7 @@
         (exit 1)
         ))
 
-  (add-hook! emacsy-initialize-hook 
+  (agenda-schedule
              (lambda ()
                (format #t "Running initialize hook.")
                ;(toggle-pause)
@@ -127,7 +128,7 @@
                                         ;(eval-beer-robot-render current-genome)
                                         ;(exit 0)
                )
-             #t))
+       ))
 
 (call-with-error-handling
  (lambda ()

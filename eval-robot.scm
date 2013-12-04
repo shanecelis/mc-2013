@@ -11,6 +11,7 @@
   #:use-module (srfi srfi-1)
   #:use-module (scene-smob)
   #:use-module (guile-user)
+  #:use-module (phenotype)
   #:use-module (brain)
   ;#:use-module ((guile-user) #:select (reset-camera))
   #:export (
@@ -95,15 +96,22 @@
                    (init-ctrnn-state #f)
                    (draw-vision-lines? #f))
   (let* ((ctrnn (make-brain))
-         (_ (init-brain-from-genome! ctrnn genome))
+         ;(_ (init-from-genome! ctrnn genome))
          (effector-func (make-brain-effector ctrnn))
+         ;; fode and fode-state are the same thing now.
+         ;; sorry for the confusion.
          (fode (make physics-class
                  #:object-count body-count 
                  #:effector-func effector-func))
-         (fode-state (fix-physics fode))
-         (vision-input (make-vision-func draw-vision-lines?
-                                         fode-state))
+         (phenotype (make <composite-phenotype> #:phenotypes (list ctrnn fode)))
+         (fode-state (begin 
+                       (init-physics fode)
+                       (fix-physics fode)))
+         (vision-input (make-vision-func 
+                        draw-vision-lines?
+                        fode-state))
          (tick-count 0))
+    (init-from-genome! phenotype genome)
     ;(format #t "Using brain ~a~%" ctrnn)
     (init-brain-state! ctrnn)
     (set-brain-input! ctrnn vision-input)

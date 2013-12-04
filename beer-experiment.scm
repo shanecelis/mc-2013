@@ -25,8 +25,9 @@
  (emacsy emacsy)
  (emacsy core)
  (oop goops)
- (fode-physics)
+ (phenotype)
  (physics)
+ (fode-physics)
  (bullet-physics)
  (bullet-physics-car)
  (bullet-physics-skateboard)
@@ -57,13 +58,21 @@
   (let ((i 0)
         (v (list->vector list)))
     (lambda* (#:optional (incr 1))
-             (format #t "BEFORE i = ~a~%" i)
+             ;(format #t "BEFORE i = ~a~%" i)
              (set! i (modulo (+ i incr) (vector-length v)))
-             (format #t "i = ~a~%" i)
+             ;(format #t "i = ~a~%" i)
              (func (vector-ref v i)))))
 
 (define temp (make-cycle
-              (list <fode-physics> <bullet-physics> <bullet-physics-car> <bullet-physics-car-8-wheel> <bullet-physics-car-ind> <bullet-physics-skateboard> <bullet-physics-skateboard-1> <bullet-physics-skateboard-2>)
+              (list <fode-physics>
+                    <bullet-physics>
+                    <bullet-physics-car>
+                    <bullet-physics-car-gene-wheel>
+                    <bullet-physics-car-8-wheel>
+                    <bullet-physics-car-ind>
+                    <bullet-physics-skateboard>
+                    <bullet-physics-skateboard-1>
+                    <bullet-physics-skateboard-2>)
               (lambda (x)
                 (message "Switched to physics class ~a." x)
                 (set! physics-class x)
@@ -341,6 +350,9 @@
      (set! vision-line-actors #f) 
      (set! vision-line-actors-index 0))))
 
+(define (make-genome gene-count)
+  (make-typed-array 'f64 0. gene-count))
+
 (define current-genome (make-genome-for-n-ctrnn node-count))
 (define gene-count (array-length current-genome))
 
@@ -515,20 +527,21 @@
              (list '* %null-pointer)))
       
       
-      (let ((scheme-vision (make-vision-input (fp:state my-fode-state)
-                                                         (1- body-count) ;; object count
-                                                         sensor-count
-                                                         ;; We're going to treat the
-                                                         ;; agent-diameter as though it
-                                                         ;; is zero for vision
-                                                         ;; purposes.
-                                                         0 
+      (let ((scheme-vision 
+             (make-vision-input (fp:state my-fode-state)
+                                (1- body-count) ;; object count
+                                sensor-count
+                                ;; We're going to treat the
+                                ;; agent-diameter as though it
+                                ;; is zero for vision
+                                ;; purposes.
+                                0 
                                         ;agent-diameter
-                                                         (/ object-diameter 2)
-                                                         max-sight-distance
-                                                         visual-angle
-                                                         max-sight-output
-                                                         (and draw? draw-vision-lines))))
+                                (/ object-diameter 2)
+                                max-sight-distance
+                                visual-angle
+                                max-sight-output
+                                (and draw? draw-vision-lines))))
         (if record-vision-values?
             ;; Let's use the old lisp version, because it's easier to collect the
             ;; input.
@@ -536,10 +549,9 @@
             scheme-vision))))
 
 (set! make-vision-func make-current-vision-input)
-
+(define *current-phenotype* #f)
 (define-interactive (reset-fode)
   (set! ctrnn (make-brain))
-  (init-brain-from-genome! ctrnn current-genome)
   ;(genome->ctrnn current-genome ctrnn)
   ;(randomize-ctrnn-state! ctrnn-state)
   (undraw-vision-lines)
@@ -563,8 +575,16 @@
                                         ;               go-right
                 (list double int '*))
                ))
+  (set! *current-phenotype* 
+        (make <composite-phenotype> #:phenotypes (list ctrnn fode)))
+  (set! gene-count (gene-count-required *current-phenotype*))
+  (unless (= gene-count (array-length current-genome))
+    (message "Gene-count changed. Updating genes")
+    (set! current-genome (make-genome gene-count))
+    (randomize-genome! current-genome))
+  (init-from-genome! *current-phenotype* current-genome)
   (init-brain-state! ctrnn)
-  
+  (init-physics fode)
   (set! fode-state (fix-physics fode))
   (choose-initial-conditions fode fode-state)
   ;(set-brain-input! ctrnn (make-current-vision-input))
@@ -574,8 +594,10 @@
 (define-interactive (randomize-brain)
   (randomize-genome! current-genome)
   ;(genome->ctrnn current-genome ctrnn)
-  (init-brain-from-genome! ctrnn current-genome)
+  ;(init-brain-from-genome! ctrnn current-genome)
+  (init-from-genome! *current-phenotype* current-genome)
   (set-brain-input! ctrnn (make-current-vision-input))
+  (reset-fode)
   #;(randomize-ctrnn-state! ctrnn-state)
   )
 
@@ -785,7 +807,8 @@
          ))))
 
 (define-interactive (beer-optimize)
-  (optimize beer-selective-attention-n 30 '() (compose not scaffold-any-individual-succeeded?)))
+  (optimize beer-selective-attention-n 30 '() 
+            (compose not scaffold-any-individual-succeeded?)))
 
 ;; The option handling is a mess. FIX IT!
 (define-interactive
@@ -817,7 +840,7 @@ of ((genome . fitness) ...) sorted in ascending order of the first
 objective. Genome and fitness are #f64 arrays."
 
   (message "nsga-ii optimizing ~a" (fitness-desc fitness-fn))
-  (if (called-interactively?) 
+  #;(if (called-interactively?) 
       ;; Let's the message be displayed before going into the big
       ;; optimization procedure.
       ;;
@@ -841,7 +864,9 @@ objective. Genome and fitness are #f64 arrays."
          (results (nsga-ii-search 
                    fitness-fn*
                    #:objective-count objective-count
-                   #:gene-count gene-count
+                   #:gene-count (if *current-phenotype*
+                                    (gene-count-required *current-phenotype*)
+                                    gene-count)
                    #:population-count population-count
                    #:generation-count max-generations
                    #:seed-population seed-population
