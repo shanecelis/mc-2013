@@ -42,7 +42,7 @@
 
 (define-method (init-from-genome! (bpc <bullet-physics-car-gene-wheel>) genome)
   ;; genome is an array with the bounds [-1, 1]
-  (format #t "initializing gene-wheel with genome ~a~%" genome)
+  ;(format #t "initializing gene-wheel with genome ~a~%" genome)
   (let* ((t (lerp-inverse -1 1 (array-ref genome 0))) ;; [0, 1]
          (new-diameter (lerp 1 30 t)))
    (set! (wheel-diameter bpc) new-diameter)))

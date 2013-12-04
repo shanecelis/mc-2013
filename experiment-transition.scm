@@ -229,8 +229,6 @@
     (format #t "max-generation ~a~%" (exp:max-gen exp))
     args))
 
-
-
 (define-method (run-experiment! (exp <experiment-transition-trial>))
   (define (my-any-individual-succeeded? generation results)
     (let ((result (any-individual-succeeded? generation results)))
@@ -240,20 +238,26 @@
   (if (exp:physics-class exp)
    (set! physics-class (exp:physics-class exp)))
   (format #t "physics class ~a~%" physics-class)
+  (set! brain-class (get-brain-class exp))
+
   (let ((eval-count 0)
         (generation-count 0)
         (myresults #f)
         (start-time (emacsy-time))
-        (fitness-collector (make-fitness-collector)))
+        (fitness-collector (make-fitness-collector))
+        (phenotype (make <composite-phenotype> 
+                     #:phenotypes (list (make-brain)
+                                        (make physics-class
+                                          #:object-count body-count)))))
    (define-fitness
      ((minimize "left distance")
       (minimize "right distance"))
      (fitness-fn genome)
      (incr! eval-count)
      (left-right-task genome (map make-apply-IC (exp:ICs exp))))
-   (set! brain-class (get-brain-class exp))
+   
    (set! myresults (nsga-ii-search fitness-fn
-                    #:gene-count (get-gene-count exp)
+                    #:gene-count (gene-count-required phenotype)
                     #:objective-count 2
 ;                    #:real-mutation-rate 0
 ;                    #:real-crossover-rate 0
