@@ -21,6 +21,7 @@
             export-data
             <parent-experiment>
             exp:child-experiments
+            read-experiment-cleanup
             ))
 
 (define-class <experiment> ()
@@ -63,9 +64,14 @@
                    '() 
                    (exp:save-modules exp)))))
 
+(define-method (read-experiment-cleanup (exp <experiment>))
+  #f)
+
 (define-method (read-experiment filename)
-  (let ((objects (load-objects filename)))
-    (assq-ref objects 'experiment)))
+  (let* ((objects (load-objects filename))
+         (exp (assq-ref objects 'experiment)))
+    ;(read-experiment-cleanup exp)
+    exp))
 
 (define-method (copy-parameters! (dest <experiment>) (src <experiment>))
   (set! (exp:parameters dest) (exp:parameters src)))

@@ -103,7 +103,8 @@
          (fode (make physics-class
                  #:object-count body-count 
                  #:effector-func effector-func))
-         (phenotype (make <composite-phenotype> #:phenotypes (list ctrnn fode)))
+         (phenotype (make <composite-phenotype> 
+                      #:phenotypes (list ctrnn fode)))
          (fode-state (begin 
                        (init-physics fode)
                        (fix-physics fode)))
@@ -111,8 +112,9 @@
                         draw-vision-lines?
                         fode-state))
          (tick-count 0))
-    (init-from-genome! phenotype genome)
     ;(format #t "Using brain ~a~%" ctrnn)
+    ;(format #t "Using phenotype ~a~%" phenotype)
+    (init-from-genome! phenotype genome)
     (init-brain-state! ctrnn)
     (set-brain-input! ctrnn vision-input)
     (begin-fn fode-state)

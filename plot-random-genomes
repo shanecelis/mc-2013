@@ -12,7 +12,7 @@
  (emacsy emacsy)
  (system repl error-handling)
  (mathematica-aux)
- )
+ (phenotype))
 
 (load "beer-experiment.scm")
 
@@ -23,8 +23,7 @@
   '((physics (single-char #\p) (value #t))
     (help    (single-char #\h) (value #f))
     (use-sandwich (single-char #\s) (value #f))
-    (range   (single-char #\r) (value #t))
-    ))
+    (range   (single-char #\r) (value #t))))
 
 (define (usage)
   (format (current-error-port) "usage: ~a [-r random-range] [-p physics-class] [-s] <experiment.dat> <count> <output.m>~%" 
@@ -53,9 +52,6 @@
           (vector-ref A 2))
      (max (vector-ref A 1)
           (vector-ref A 3))))
-
-(define (random-gene)
-  (- 1. (random 2.)))
 
 (define* (random-matrix #:optional (range 1.))
   (list->vector (map (lambda (i)

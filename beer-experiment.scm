@@ -745,6 +745,15 @@
       ((generation results)
        (cons! (list generation (map (compose array-duplicate caddr) results)) fitnesses)))))
 
+(define (make-genome-collector)
+  (let ((genomes '()))
+    (case-lambda 
+      (() genomes)
+      ((generation results)
+       (cons! 
+        (list generation (map (compose array-duplicate cadr) results))
+        genomes)))))
+
 (define (individual-succeeded? fitness)
   "Did the individual come in contact with the object."
   ;(format #t "checking fitness ~a~%" fitness)
@@ -1011,5 +1020,5 @@ given tasks."
   )
 
 
-(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions reset-camera make-effector-func-unified make-c-effector-func undraw-vision-lines #;fode defer-promise make-fitness-collector
+(export reset-fode choose-initial-conditions generation-count-to-do2 generation-count-to-do3 any-individual-succeeded? left-right-task get-results-that-succeeded current-genome initial-conditions reset-camera make-effector-func-unified make-c-effector-func undraw-vision-lines #;fode defer-promise make-fitness-collector make-genome-collector
         )

@@ -1,11 +1,11 @@
 #!/usr/bin/env guile \
--e main -s 
+-e debug-main -s 
 !#
 (use-modules (experiment)
              (oop goops)
              (experiment-transition)
              (system repl error-handling)
-             )
+             (optimize-transition))
 
 (define (main args)
   (let ((argc (length args))

@@ -79,14 +79,54 @@ for file in results-20/fode-physics-??.dat; do ./evolve-sandwiches results-23 '<
 ** evolve FODE ctrnns for 100 generations
 results-24/fode-physics-*.dat
 
+$ ./export-data results-24/fode-physics-{?,??}.dat > results-24/fode-physics.m
+
 Then evolve the sandwiches.  See if there's a big difference with the submitted results.
 
-for file in results-24/fode-physics-?.dat results-24/fode-physics-??.dat; do ./evolve-sandwiches results-24 '<bullet-physics-car>' 3 "$file"; done
+for file in results-24/fode-physics-{?,??}.dat; do ./evolve-sandwiches results-24 '<bullet-physics-car>' 3 "$file"; done
+
+$ ./export-data results-24/fode-physics-{?,??}-bullet-*.dat > results-24/fode-physics-all-bullet-physics-car-all.m
+ended up being results-26
 
 ** evolve bullet with evolvable wheel size
 
 $ ./evolve-ctrnns results-25 '<bullet-physics-car-gene-wheel>' 100
 
+$ ./export-data results-25/bullet-physics-car-gene-wheel-*.dat > results-25/bullet-physics-car-gene-wheel-all.m
+
 ** evolve bullet with seeded CTRNNs
 
-for file in results-24/fode-physics-?.dat results-24/fode-physics-??.dat; do EXPERIMENT_CLASS='<experiment-fode->bullet-trial-no-sandwich>' ./evolve-sandwiches results-26 '<bullet-physics-car>' 3 "$file"; done
+for file in results-24/fode-physics-{?,??}.dat; do EXPERIMENT_CLASS='<experiment-fode->bullet-trial-no-sandwich>' ./evolve-sandwiches results-26 '<bullet-physics-car>' 3 "$file"; done
+
+$ ./export-data results-26/fode-physics-*.dat > results-26/fode-physics-all.m
+
+$ ./export-data results-26/fode-physics-{??,?}-bullet-physics-car-0.dat > result
+$ ./export-data results-26/fode-physics-{??,?}-bullet-physics-car-0.dat > results-26/fode-physics-all-bullet-physics-car-0.m
+
+
+** evolve bullet with evolvable wheel size seeded with FODE controllers (no sandwich)
+
+$ for file in results-24/fode-physics-{?,??}.dat; do EXPERIMENT_CLASS='<experiment-fode->bullet-trial-no-sandwich>' ./evolve-sandwiches results-27 '<bullet-physics-car-gene-wheel>' 3 "$file"; done
+
+$ ./export-data results-27/fode-physics-*-bullet-physics-car-gene-wheel*.dat > results-27/fode-physics-all-bullet-physics-car-gene-wheel-all.m
+
+*** AGAIN but recording genomes
+$ for file in results-24/fode-physics-{?,??}.dat; do EXPERIMENT_CLASS='<experiment-fode->bullet-trial-no-sandwich>' ./evolve-sandwiches results-29 '<bullet-physics-car-gene-wheel>' 3 "$file"; done
+$ ./export-data results-29/fode-physics-*-bullet-physics-car-gene-wheel*.dat > results-29/fode-physics-all-bullet-physics-car-gene-wheel-all.m
+
+** evolve bullet with evolvable wheel size seeded with FODE controllers
+$ for file in results-24/fode-physics-{?,??}.dat; do ./evolve-sandwiches results-28 '<bullet-physics-car-gene-wheel>' 3 "$file"; done
+
+$ ./export-data results-28/fode-physics-*-bullet-physics-car-gene-wheel*.dat > results-28/fode-physics-all-bullet-physics-car-gene-wheel-all.m
+
+*** AGAIN but recording genomes
+$ for file in results-24/fode-physics-{?,??}.dat; do ./evolve-sandwiches results-30 '<bullet-physics-car-gene-wheel>' 3 "$file"; done
+
+$ ./export-data results-30/fode-physics-*-bullet-physics-car-gene-wheel*.dat > results-30/fode-physics-all-bullet-physics-car-gene-wheel-all.m
+
+** evaluate with many wheel sizes
+
+$ ./plot-random-genomes2 -p '<fode-physics>' -e '<experiment-fode->bullet-trial-fixed-brain-genome>' results-24/fode-physics-1.dat 100 test.m
+
+$ dir=results-31; mkdir $dir; for file in results-24/fode-physics-{?,??}.dat; do ./plot-random-genomes2 -p '<bullet-physics-car-gene-wheel>' -e '<experiment-fode->bullet-trial-fixed-brain-genome>' "$file" 100 "$dir/$(basename "$file" ".dat").m"; done
+** Graph the distribution of wheel size for the runs

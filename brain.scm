@@ -176,49 +176,60 @@
 
 (define brain-class <ctrnn-brain>)
 
-(define (make-brain)
+(define* (make-brain #:optional (brain-class brain-class))
+  ;(format #t "Brain class is ~s.~%" brain-class)
   (if (list? brain-class)
    (apply make brain-class)
    (make brain-class)))
 
 (define-class <matrix-sandwich> (<brain>)
-  (old-brain #:accessor old-brain #:init-keyword #:old-brain)
-  (matrix-sandwich #:accessor matrix-sandwich #:init-value #f #:init-keyword #:matrix-sandwich)
-  (transition-params #:accessor transition-params #:init-keyword #:transition-params))
+  (old-brain #:accessor ms:old-brain #:init-keyword #:old-brain)
+  (matrix-sandwich #:accessor ms:matrix-sandwich 
+                   #:init-value 
+                   #f 
+                   ;#f64(0. 0. 0. 0.)
+                   #:init-keyword #:matrix-sandwich)
+  (transition-params #:accessor ms:transition-params #:init-keyword #:transition-params))
+
+(define-method (initialize (brain <matrix-sandwich>) initargs)
+  (next-method)
+  ;; Must set this up before it is used to create a brain effector.
+  (set! (ms:matrix-sandwich brain) 
+        (make-random-genome (gene-count-required brain))))
 
 ;(define-class <affine-matrix-sandwich> (<matrix-sandwich>))
 
 (define-method (set-brain-input! (brain <matrix-sandwich>) input)
-  (set-brain-input! (old-brain brain) input))
+  (set-brain-input! (ms:old-brain brain) input))
 
 (define-method (step-brain! (brain <matrix-sandwich>) time-step)
-  (step-brain! (old-brain brain) time-step))
+  (step-brain! (ms:old-brain brain) time-step))
 
 (define-method (init-brain-state! (brain <matrix-sandwich>))
-  (init-brain-state! (old-brain brain)))
+  (init-brain-state! (ms:old-brain brain)))
 
 (define-method (make-brain-effector (brain <matrix-sandwich>))
-  (unless (matrix-sandwich brain)
+  (unless (ms:matrix-sandwich brain)
     (scm-error 'invalid-matrix-sandwich "make-brain-effector" "error: no matrix-sandwich available in ~a" (list brain) #f))
   ;(format #t "Using matrix ~a~%" (matrix-sandwich brain))
   (make-transition-params-effector
-   (transition-params brain)
-   (make-brain-effector (old-brain brain))
-   (matrix-sandwich brain)))
+   (ms:transition-params brain)
+   (make-brain-effector (ms:old-brain brain))
+   (ms:matrix-sandwich brain)))
 
 (define-method (init-from-genome! (brain <matrix-sandwich>) genome)
   (init-brain-from-genome! brain genome))
 
 (define-method (gene-count-required (brain <matrix-sandwich>))
-  (tp:gene-count (transition-params brain)))
+  (tp:gene-count* (ms:transition-params brain)))
 
 (define-method (init-brain-from-genome! (brain <matrix-sandwich>) genome)
-  (if (matrix-sandwich brain)
-      (array-copy! genome (matrix-sandwich brain))
-      (set! (matrix-sandwich brain) (array-duplicate genome))))
+  (if (ms:matrix-sandwich brain)
+      (array-copy! genome (ms:matrix-sandwich brain))
+      (set! (ms:matrix-sandwich brain) (array-duplicate genome))))
 
 (define-method (display (brain <matrix-sandwich>) port)
   (format port "#<matrix-sandwich M ~a tp ~a old-brain ~a>"
-         (matrix-sandwich brain)
-         (transition-params brain)
-         (old-brain brain)))
+         (ms:matrix-sandwich brain)
+         (ms:transition-params brain)
+         (ms:old-brain brain)))

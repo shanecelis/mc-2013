@@ -22,8 +22,7 @@
   #:use-module (float-equality)
   #:use-module ((vector-math) #:select (vector->string range))
   #:use-module (minimal-cognition ctrnn)
-  #:export (
-            left-IC 
+  #:export (left-IC 
             right-IC 
             <experiment-transition-trial> 
             exp:ICs 
@@ -37,15 +36,15 @@
             <experiment-transition-parent> 
             <experiment-fode->bullet-trial>
             <experiment-fode->bullet-trial-no-sandwich>
+            <experiment-fode->bullet-trial-fixed-brain-genome>
             exp:transition-params
             run-individual
             install-individual
             to-experiment-fode->bullet-trial
             exp:fitness-time-series
             exp:stop-when-succeeded?
-            )
-  #:re-export (exp:physics-class)
-  )
+            get-gene-count)
+  #:re-export (exp:physics-class))
 
 (define-class <experiment-transition-trial> (<physics-experiment>)
   (ICs #:accessor exp:ICs)
@@ -55,22 +54,37 @@
   (wall-clock-time #:accessor exp:wall-clock-time)
   (succeeded? #:accessor exp:succeeded? #:init-value #f)
   (fitness-time-series #:accessor exp:fitness-time-series #:init-value '())
+  (genome-time-series #:accessor exp:genome-time-series #:init-value '())
   (stop-when-succeeded? #:accessor exp:stop-when-succeeded? #:init-value #t))
 
 (define-class <experiment-fode->bullet-trial> (<experiment-transition-trial>)
   (mc-genome #:accessor exp:mc-genome #:init-keyword #:mc-genome) ;; minimal cognition genome
   (transition-params #:accessor exp:transition-params #:init-keyword #:transition-params))
 
+(define-method (read-experiment-cleanup (exp <experiment-fode->bullet-trial>))
+  (unless (transition-params? (exp:transition-params exp))
+      (set! (exp:transition-params exp) 
+            (eval (exp:transition-params exp) (interaction-environment)))))
+
 ;; We do an experiment without sandwiches, we just seed the population with evolved CTRNNs.
-(define-class <experiment-fode->bullet-trial-no-sandwich> (<experiment-fode->bullet-trial>))
+(define-class <experiment-fode->bullet-trial-no-sandwich> 
+  (<experiment-fode->bullet-trial>))
+
+(define-class <experiment-fode->bullet-trial-fixed-brain-genome> 
+  (<experiment-fode->bullet-trial-no-sandwich>))
 
 (define-method (to-experiment-fode->bullet-trial
                 (expmt <experiment-transition-trial>))
   (change-class expmt <experiment-fode->bullet-trial>)
-  (set! (exp:mc-genome expmt) (caar (exp:results expmt)))
-  (set! (exp:results expmt) '())
-  (set! (exp:transition-params expmt) (make-transition-params 2 2 #f))
   expmt)
+
+(define-method (update-instance-for-different-class 
+                (old-instance <experiment-transition-trial>)
+                (new-instance <experiment-fode->bullet-trial>))
+  "Update from one class to another.  Yay!"
+  (set! (exp:mc-genome new-instance) (caar (exp:results old-instance)))
+  (set! (exp:results new-instance) '())
+  (set! (exp:transition-params new-instance) (make-transition-params 2 2 #f)))
 
 (define-method (to-experiment-fode->bullet-trial
                 (expmt <experiment-fode->bullet-trial>))
@@ -145,14 +159,8 @@
 (define-method (run-individual (exp <experiment-fode->bullet-trial>) index)
   (let ((ctrnn (make <ctrnn-brain>))
         (transition-genome (car (list-ref (exp:results exp) index))))
-    (init-brain-from-genome! ctrnn (exp:mc-genome exp))
-    (set! brain-class (list <matrix-sandwich>
-                            #:old-brain ctrnn
-                            #:transition-params 
-                            (eval (exp:transition-params exp) 
-                                  (interaction-environment))
-                            ;;#:matrix-sandwich transition-genome
-                            ))
+    (init-from-genome! ctrnn (exp:mc-genome exp))
+    (set! brain-class (get-brain-class exp))
     (next-method)))
 
 (define-method (install-individual (exp <experiment-transition-trial>) index)
@@ -166,16 +174,18 @@
         (transition-genome (car (list-ref (exp:results exp) index))))
     (init-brain-from-genome! ctrnn (exp:mc-genome exp))
     (set! current-genome transition-genome)
-    (set! brain-class (list <matrix-sandwich>
+    (set! brain-class (get-brain-class exp)
+          #;(list <matrix-sandwich>
                           #:old-brain ctrnn
                           #:transition-params 
-                          (eval (exp:transition-params exp) (interaction-environment))
+                          (eval (exp:transition-params exp) 
+                                (interaction-environment))
                           #:matrix-sandwich transition-genome)))
   (set! initial-conditions (map make-apply-IC (exp:ICs exp))))
 
 (define-method (get-brain-class (exp <experiment-fode->bullet-trial>))
   (let ((ctrnn (make <ctrnn-brain>)))
-       (init-brain-from-genome! ctrnn (exp:mc-genome exp))
+       (init-from-genome! ctrnn (exp:mc-genome exp))
        (list <matrix-sandwich>
              #:old-brain ctrnn
              #:transition-params 
@@ -188,11 +198,12 @@
 (define-method (get-brain-class (exp <experiment-fode->bullet-trial-no-sandwich>))
   <ctrnn-brain>)
 
-(define-method (get-gene-count (exp <experiment-fode->bullet-trial>))
+#;(define-method (get-gene-count (exp <experiment-fode->bullet-trial>))
   (tp:gene-count (exp:transition-params exp)))
 
 (define-method (get-gene-count (exp <experiment-transition-trial>))
-  (gene-count-for-n-ctrnn node-count))
+  (gene-count-required (make-phenotype exp))
+  #;(gene-count-for-n-ctrnn node-count))
 
 (define-method (process-arguments! (exp <experiment-fode->bullet-trial>) args)
   (let* ((leftover-args (next-method))
@@ -236,13 +247,49 @@
     (format #t "max-generation ~a~%" (exp:max-gen exp))
     args))
 
-(define-method (exp:seed-population (exp <experiment-transition-trial>))
+(define-method (exp:seed-population 
+                (exp <experiment-transition-trial>))
   '())
 
-(define-method (exp:seed-population (exp <experiment-fode->bullet-trial-no-sandwich>))
+(define-method (exp:seed-population 
+                (exp <experiment-fode->bullet-trial-no-sandwich>))
   (format #t "Seeding the population with CTRNNs.")
   (map (lambda (i)
          (exp:mc-genome exp)) (range 1 population-count)))
+
+(define-method (make-phenotype (exp <experiment-transition-trial>))
+  (let ((phenotype (make <composite-phenotype> 
+           #:phenotypes (list (make-brain (get-brain-class exp))
+                              (make (or (exp:physics-class exp)
+                                        physics-class)
+                                #:object-count body-count)))))
+    (format #t "phenotype gene count ~a~%" (gene-count-required phenotype))
+    phenotype))
+
+(define-method (get-brain-class 
+                (exp <experiment-fode->bullet-trial-fixed-brain-genome>))
+  
+  (match (next-method)
+    ((brain-class . args)
+     (apply list (make-fixed-phenotype-class brain-class) 
+           #:fixed-genome (exp:mc-genome exp) args))
+    (brain-class
+     (list (make-fixed-phenotype-class brain-class) 
+           #:fixed-genome (exp:mc-genome exp)))))
+
+#;(define-method (make-phenotype (exp <experiment-fode->bullet-trial-fixed-brain-genome>))
+  (throw 'blah)
+  (if (exp:physics-class exp)
+   (set! physics-class (exp:physics-class exp)))
+  ;(format #t "physics class ~a~%" physics-class)
+  (set! brain-class (get-brain-class exp))
+  #;(make <composite-phenotype> 
+                     #:phenotypes (list (make-brain)
+                                   (make physics-class
+                                          #:object-count body-count)))
+  (make physics-class
+                                          #:object-count body-count)
+  )
 
 (define-method (run-experiment! (exp <experiment-transition-trial>))
   (define (my-any-individual-succeeded? generation results)
@@ -251,25 +298,28 @@
           (set! (exp:succeeded? exp) #t))
       result))
   (if (exp:physics-class exp)
-   (set! physics-class (exp:physics-class exp)))
-  (format #t "physics class ~a~%" physics-class)
+      (set! physics-class (exp:physics-class exp)))
+  ;(format #t "physics class ~a~%" physics-class)
   (set! brain-class (get-brain-class exp))
+  ;(format #t "brain class ~a~%" brain-class)
+  ;(format #t "brain class ~a makes a brain that looks like ~a~%" brain-class (make-brain))
 
   (let ((eval-count 0)
         (generation-count 0)
         (myresults #f)
         (start-time (emacsy-time))
         (fitness-collector (make-fitness-collector))
-        (phenotype (make <composite-phenotype> 
-                     #:phenotypes (list (make-brain)
-                                        (make physics-class
-                                          #:object-count body-count)))))
+        (genome-collector (make-genome-collector))
+        (phenotype (make-phenotype exp)))
    (define-fitness
      ((minimize "left distance")
       (minimize "right distance"))
      (fitness-fn genome)
      (incr! eval-count)
      (left-right-task genome (map make-apply-IC (exp:ICs exp))))
+   
+   #;(init-from-genome! phenotype 
+                      (make-random-genome (gene-count-required phenotype)))
    
    (set! myresults (nsga-ii-search fitness-fn
                     #:gene-count (gene-count-required phenotype)
@@ -283,6 +333,7 @@
                     (lambda args
                       (incr! generation-count)
                       (apply fitness-collector args)
+                      (apply genome-collector args)
                       (if (exp:stop-when-succeeded? exp) 
                           (apply (compose not my-any-individual-succeeded?) args)
                           #t))))
@@ -290,7 +341,8 @@
    (set! (exp:gen-count exp) generation-count)
    (set! (exp:eval-count exp) eval-count)
    (set! (exp:wall-clock-time exp) (- (emacsy-time) start-time))
-   (set! (exp:fitness-time-series exp) (fitness-collector)))
+   (set! (exp:fitness-time-series exp) (fitness-collector))
+   (set! (exp:genome-time-series exp) (genome-collector)))
   (when (exp:succeeded? exp) 
       (run-individual exp 0)))
 
@@ -315,13 +367,19 @@
     (show-stats succeeded        "success             ")))
 
 (define-method (export-data (exp <experiment-transition-parent>) port)
-  (let* ((exps (exp:child-experiments exp))
+  ;; only deal with experiments that have some results.
+  (let* ((exps (filter (lambda (experiment)
+                         (and experiment (pair? (exp:results experiment)))) 
+                       (exp:child-experiments exp)))
+         ;(exps (exp:child-experiments exp))
          (gen-counts (map exp:gen-count exps))
          (eval-counts (map exp:eval-count exps))
          (wall-clock-times (map exp:wall-clock-time exps))
          (succeeded (map (lambda (exp) (if (exp:succeeded? exp) 1. 0.)) exps))
-         ;(fitness-time-series (map exp:fitness-time-series exps))
-         (fitness (map (compose cdr exp:results) exps)))
+         (fitness-time-series (map exp:fitness-time-series exps))
+         (genome-time-series (map exp:genome-time-series exps))
+         (fitness (map (compose cdr exp:results) exps))
+         (genes (map (compose car exp:results) exps)))
     
     (define (show-stats lst name)
       (format port "~a -> ~a~%" name (sexp->mathematica lst)))
@@ -331,7 +389,9 @@
     (show-stats eval-counts ", evalCounts")
     (show-stats wall-clock-times ", wallClockTimes")
     (show-stats succeeded ", success")
-;    (show-stats fitness-time-series ", fitnessTimeSeries")
+    (show-stats fitness-time-series ", fitnessTimeSeries")
+    (show-stats genome-time-series ", genomeTimeSeries")
+    ;(show-stats genes ", genes")
 ;    (show-stats succeeded ", fitness")
     (format port "}~%")))
 
@@ -340,6 +400,7 @@
   (set! (exp:save-modules exp) 
         (append (exp:save-modules exp) 
                  '((experiment-transition)
+                   (optimize-transition)
                    (physics)
                    (fode-physics)
                    (bullet-physics-car)

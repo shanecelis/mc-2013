@@ -35,6 +35,9 @@
    (mathematica-eval expr)
    (system* "open" "-a" "Preview" filename)))
 
+(define-method (sexp->mathematica (sexp <uvec>))
+  (sexp->mathematica (array->list sexp)))
+
 (define-method (sexp->mathematica (sexp <vector>))
   (sexp->mathematica (vector->list sexp)))
 

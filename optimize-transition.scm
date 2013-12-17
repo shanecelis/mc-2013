@@ -1,7 +1,3 @@
-#!/usr/bin/env guile \
--e (@@\ (optimize-transition)\ main) -s
-!#
-
 ;; Rename optimize-transition.scm to transition-params, perhaps?
 (define-module (optimize-transition)
   #:use-module (srfi srfi-9) ;; record
@@ -21,12 +17,10 @@
             tp:trinary-matrix?
             tp:motor-count-in
             tp:motor-count-out
-            tp:gene-count))
-
-(define (main args)
-  (format #t "hi~%")
-
-  )
+            transition-params?
+            tp:gene-count
+            tp:gene-count*
+            fix-transition-params))
 
 ;; This module is to optimize the transition from a minimal cognition
 ;; agent in FODE to an agent in Bullet.  The trick we're going to try
@@ -40,8 +34,7 @@
   (trinary-matrix? tp:trinary-matrix?)
   (motor-count-in tp:motor-count-in)
   (motor-count-out tp:motor-count-out)
-  (gene-count tp:gene-count)
-  )
+  (gene-count tp:gene-count))
 
 (set-record-type-printer! <transition-params>
                           (lambda (record port)
@@ -110,3 +103,15 @@
          #f64(1. 0. ;; genome
               0. 1.)))
   (reset-fode))
+
+(define (fix-transition-params tp)
+  (cond 
+   ((transition-params? tp)
+    tp)
+   ((list? tp)
+    (eval tp (interaction-environment)))
+   (else
+    (scm-error 'invalid-transition-params "fix-transition-params" "Got a weird thing for transition params ~a" (list tp) #f))))
+
+;; Sometimes the record syntax stuff really gunks things up.
+(define tp:gene-count* tp:gene-count)
